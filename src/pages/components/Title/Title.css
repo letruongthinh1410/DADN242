@@ -1,0 +1,12 @@
+.title {
+    background-image: linear-gradient(to bottom, #0CD908, #0F6918);
+    margin: 1rem 3rem;
+    padding: 0.7rem 0;
+    border-radius: 1rem;
+}
+
+.title-name {
+    color: #FFFFFF;
+    font-size: 1.1rem;
+    margin: 0;
+}
