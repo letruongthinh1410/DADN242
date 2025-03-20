@@ -4,18 +4,16 @@ import "./Sidebar.css";
 
 import Logo from "./Logo.jsx";
 
-import { MdForest } from "react-icons/md";
-import { FaChartLine, FaCalendarAlt } from "react-icons/fa";
-import { IoPersonCircleOutline } from "react-icons/io5";
+import { Trees, ChartSpline, CalendarCheck, CircleUserRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 const Sidebar = () => {
     const menuItems = [
-        {text: "Cây trồng", icon: <MdForest />, link: "plants", key: "plant",},
-        {text: "Thống kê", icon: <FaChartLine />, link: "statistics", key: "statistic",},
-        {text: "Lên lịch", icon: <FaCalendarAlt />, link: "schedule", key: "schedule",},
-        {text: "Thông tin tài khoản", icon: <IoPersonCircleOutline />, link: "infor-account", key: "infor",},
+        {text: "Cây trồng", icon: <Trees />, link: "plants", key: "plant",},
+        {text: "Thống kê", icon: <ChartSpline />, link: "statistics", key: "statistic",},
+        {text: "Lên lịch", icon: <CalendarCheck />, link: "schedule", key: "schedule",},
+        {text: "Thông tin tài khoản", icon: <CircleUserRound />, link: "infor-account", key: "infor",},
     ]
     return (
         <div className="sidebar d-flex flex-column align-items-center justify-content-start" style={{boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",}}>
@@ -33,12 +31,12 @@ const Sidebar = () => {
                         {({ isActive }) => (
                             <ListItemButton
                                 sx={{
-                                    backgroundColor: isActive ? "#0F6918" : "white",
+                                    backgroundColor: isActive ? "#4CAF50" : "white",
                                     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
                                     borderRadius: "8px",
                                     color: isActive ? "white" : "black",
                                     mb: 1,
-                                    "&:hover": { backgroundColor: "#004d00", color: "white" },
+                                    "&:hover": { backgroundColor: "#9BCFB8", color: "white", },
                                     padding: "0.5rem 1rem",
                                     fontWeight: 700 
                                 }}
@@ -46,7 +44,7 @@ const Sidebar = () => {
                                 {item.icon}
                                 <ListItemText 
                                     primary={item.text} 
-                                    sx={{ color: isActive ? "white" : "black", marginLeft: "0.6rem", }}
+                                    sx={{ color: isActive ? "white" : "black", marginLeft: "0.6rem", "&:hover": { color: "white", }, }}
                                 />
                             </ListItemButton>
                         )}

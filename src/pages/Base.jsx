@@ -17,13 +17,20 @@ const Base = () => {
     
     return (
         <div className="base">
-            <Grid2 container spacing={0}>
-                <Grid2 size={{ xs: 6, md: 2 }}>
+            <Grid2 
+                container 
+                spacing={0} 
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" } // Nhỏ thì cột, lớn thì hàng
+                }}
+            >
+                <Grid2 size={{ xs: 12, md: 2 }}>
                     <Sidebar />
                 </Grid2>
-                <Grid2 size={{ xs: 6, md: 10 }} >
+                <Grid2 size={{ xs: 12, md: 10 }}>
                     <Header />
-                    <Title title = {currentTitle} />
+                    <Title title={currentTitle} />
                     <Outlet />
                 </Grid2>
             </Grid2>

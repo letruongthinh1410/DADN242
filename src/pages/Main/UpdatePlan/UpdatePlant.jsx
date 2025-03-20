@@ -18,7 +18,8 @@ import {
     Paper
   } from "@mui/material";
   
-  import { SquarePlus, CirclePlus, Trash2, CircleX } from "lucide-react";
+  import { ArrowDownToLine, CircleX, Trash2, SquarePlus } from "lucide-react";
+
   import { NavLink } from "react-router-dom";
 
 const PlantForm = ({plantData, handleChange}) => {
@@ -90,7 +91,7 @@ const PlantForm = ({plantData, handleChange}) => {
                 value={plantData.light}
                 onChange={handleChange}
                 InputProps={{
-                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
                 }}
                 color="success"
                 size="small"
@@ -99,7 +100,7 @@ const PlantForm = ({plantData, handleChange}) => {
         </Box>
     );
 };
-const AddPlant = () => {
+const UpdatePlant = () => {
     const [plantData, setPlantData] = React.useState({
         id: "",
         name: "",
@@ -205,7 +206,7 @@ const AddPlant = () => {
                                 </MenuItem>
                             {devices.map((device) => (
                                 <MenuItem key={device.name} value={device.name}>
-                                {device.name}
+                                    {device.name}
                                 </MenuItem>
                             ))}
                             </Select>
@@ -231,7 +232,6 @@ const AddPlant = () => {
                         </FormControl>
                         <Button 
                             variant="contained" 
-                            backgroundColor="#0ba6ff" 
                             style = {{marginTop: "0.6rem", padding: "0.5rem 0", textTransform: "none", width: "10rem"}} 
                             fullWidth onClick={handleAddDevice}
                         >
@@ -243,11 +243,11 @@ const AddPlant = () => {
             <div className="d-flex justify-content-end align-items-center" style={{marginTop: "1rem"}}>
                 <Button 
                     variant="contained" 
-                    backgroundColor="#0ba6ff" 
-                    style = {{padding: "0.5rem 0", marginRight: "1rem", textTransform: "none", width: "10rem"}} 
+                    backgroundColor="#99CCFF" 
+                    style = {{padding: "0.5rem 0", marginRight: "1rem", textTransform: "none", width: "10rem", backgroundColor: "#FFCC00"}} 
                     fullWidth onClick={handleAddDevice}
                 >
-                    <CirclePlus style = {{marginRight: "0.6rem",}}/> Thêm cây trồng
+                    <ArrowDownToLine style = {{marginRight: "0.6rem",}}/> Lưu thay đổi
                 </Button>
                 <NavLink to="/plants">
                     <Button 
@@ -264,7 +264,7 @@ const AddPlant = () => {
     );
 }
 
-export default AddPlant;
+export default UpdatePlant;
 
 
 

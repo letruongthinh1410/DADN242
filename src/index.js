@@ -12,7 +12,9 @@ import Base from './pages/Base.jsx';
 import Home from './pages/Main/Home/Home.jsx';
 
 import AddPlant from './pages/Main/AddPlant/AddPlant.jsx';
-
+import UpdatePlant from './pages/Main/UpdatePlan/UpdatePlant.jsx';
+import Parameter
+ from './pages/Main/Parameter/Parameter.jsx';
 const App = () => {
     const router = createBrowserRouter([
         {
@@ -28,13 +30,21 @@ const App = () => {
                             path: 'plants',
                             element: <Home />,
                             handle: { title: "Danh sách cây trồng" },
-                            children: [
-                                {
-                                    path: 'add',
-                                    element: <AddPlant />,
-                                    handle: { title: "Thêm cây trồng" },
-                                }
-                            ]
+                        },
+                        {
+                            path: 'plants/add',
+                            element: <AddPlant />,
+                            handle: { title: "Thêm cây trồng" },
+                        },
+                        {
+                            path: 'plants/update',
+                            element: <UpdatePlant />,
+                            handle: { title: "Cập nhật cây trồng" },
+                        },
+                        {
+                            path: 'plants/parameter',
+                            element: <Parameter />,
+                            handle: { title: "Thông số cây trồng" },
                         },
                     ],
                 }

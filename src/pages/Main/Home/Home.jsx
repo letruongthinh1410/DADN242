@@ -2,16 +2,10 @@ import React from "react";
 import { useState } from "react";
 import { Grid2, Pagination } from "@mui/material";
 
-import { Card, CardContent, Typography, Button, Alert, Box  } from "@mui/material";
-import { FaThermometerHalf, FaListAlt   } from "react-icons/fa";
+import { Card, CardContent, Typography, Button, Alert, Box, Tooltip  } from "@mui/material";
 
-import { RiTreeFill } from "react-icons/ri";
-import { IoMdInformationCircle } from "react-icons/io";
-import { FiTool } from "react-icons/fi";
-import { GoDotFill } from "react-icons/go";
-import { IoIosAddCircle } from "react-icons/io";
+import { TreeDeciduous, Thermometer, List, Info, Hammer, CirclePlus, Dot  } from 'lucide-react';
 
-import "./Home.css";
 import { NavLink } from "react-router-dom";
 const PlantCard = ({ plant }) => {
     return (
@@ -28,41 +22,48 @@ const PlantCard = ({ plant }) => {
         >
             <CardContent>
                 {/* Tên cây */}
-                <Typography variant="h6" fontWeight="bold" sx={{textAlign: "center"}}>
-                    <GoDotFill color= {plant.sign ? "#D90808" : "#0CD908"}/> {plant.id}
+                <Typography variant="h6" fontWeight="bold" style={{fontSize: "1.1rem"}} className="d-flex align-items-center justify-content-center">
+                    <Dot size={28} color= {plant.sign ? "#D90808" : "#0CD908"}/> {plant.id}
                 </Typography>
 
                 {/* Loại cây */}
                 <Typography variant="body2" gutterBottom>
-                    <RiTreeFill color="#48752C" style = {{marginRight: "1rem",}}/> {plant.name}
+                    <TreeDeciduous size={20} color="#48752C" style = {{marginRight: "1rem",}}/> {plant.name}
                 </Typography>
 
                 {/* Thông tin môi trường */}
-                <Typography variant="body2" fontWeight="bold" mt={1}>
-                    <FaThermometerHalf style = {{marginRight: "1rem",}}/> Nhiệt độ - Độ ẩm - Ánh sáng
-                </Typography>
-                <Typography variant="body2">
-                    {plant.temperature}°C - {plant.humidity}% - {plant.light}%
-                </Typography>
+                <NavLink to="parameter" style={{textDecoration: "none", color: "black"}}>
+                    <Typography variant="body2" fontWeight="bold" mt={1}>
+                    <Thermometer size={20} style = {{marginRight: "1rem"}}/> Nhiệt độ - Độ ẩm - Ánh sáng
+                    </Typography>
+                    <Typography variant="body2">
+                        {plant.temperature}°C - {plant.humidity}% - {plant.light}%
+                    </Typography>
+                </NavLink>
+                
 
                 <Typography variant="body2"  mt={1} >
-                    <FaListAlt style = {{marginRight: "1rem",}}/> Các thiết bị theo dõi <IoMdInformationCircle style = {{marginLeft: "1rem",}}/>
+                    <List size={20} style = {{marginRight: "1rem",}}/> Các thiết bị theo dõi
+                    <Tooltip title={plant.devices.join("\n")} arrow>
+                    <span> {/* Bọc lại để Tooltip hoạt động tốt hơn */}
+                        <Info style={{ marginLeft: "1rem", cursor: "pointer" }} />
+                    </span>
+                    </Tooltip>
                 </Typography>
                 <Typography variant="body2" color={plant.sign ? "error" : "success"} mt={1}>
                     <Alert severity={plant.sign ? "error" : "success"} style = {{padding: "0 1rem", maxWidth: "15rem", maxHeight: "3rem"}}>{plant.status}</Alert>
                 </Typography>
 
                 {/* Nút sửa thông tin */}
-                <NavLink to="#" style={{display: "flex", justifyContent: "end", textDecoration: "none"}}>
+                <NavLink to="update" style={{display: "flex", justifyContent: "end", textDecoration: "none"}}>
                     <Button
                         variant="contained"
                         fullWidth
-                        sx={{ backgroundColor: "#0CD908", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.3rem 0.5rem"}}
+                        sx={{ backgroundColor: "#26A69A", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.3rem 0.5rem"}}
                     >
-                        <FiTool style = {{marginRight: "0.6rem",}}/> Sửa thông tin
+                        <Hammer style = {{marginRight: "0.6rem",}}/> Sửa thông tin
                     </Button>
                 </NavLink>
-                
             </CardContent>
         </Card>
     );
@@ -84,16 +85,16 @@ const PlantList = ({ plants }) => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                minHeight: "80vh", // Giữ chiều cao tối thiểu
+                minHeight: "80vh", 
                 marginBottom: "0.6rem"
             }}
         >
             {/* Grid hiển thị danh sách cây */}
             <Grid2 
                 container 
-                spacing={3} 
+                spacing={1} 
                 justifyContent="start"
-                sx={{ flexGrow: 1, padding: "0 5rem", }} // Để danh sách mở rộng khi cần
+                sx={{ flexGrow: 1, padding: "0 5rem"}} // Để danh sách mở rộng khi cần
                 
             >
                 {currentPlants.map((plant, index) => (
@@ -109,9 +110,9 @@ const PlantList = ({ plants }) => {
                         <Button
                             variant="contained"
                             fullWidth
-                            sx={{ backgroundColor: "#0ba6ff", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.5rem 0.8rem", fontWeight: 400, fontSize: "1rem"}}
+                            sx={{ backgroundColor: "#0ba6ff", borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.2rem 0.8rem", fontWeight: 400, fontSize: "1rem"}}
                         >
-                            <IoIosAddCircle style = {{marginRight: "0.6rem",}}/> Thêm cây trồng
+                            <CirclePlus style = {{marginRight: "0.6rem"}}/> Thêm cây trồng
                         </Button>
                 </NavLink>
 
@@ -123,22 +124,21 @@ const PlantList = ({ plants }) => {
                     variant="outlined" shape="rounded"
                     showFirstButton showLastButton
                 />
-                <p style={{margin: "0", fontWeight: 600, fontSize: "1.2rem"}}>Tổng số cây trồng: {plants.length}</p>
+                <p style={{margin: "0", fontWeight: 600, fontSize: "1.1rem"}}>Tổng số cây trồng: {plants.length}</p>
             </Box>
-
         </Box>
     );
 };
 
 const Home = () => {
     const plants = [
-        { id: "TMT001", name: "Cà chua", type: "Hoa quả", temperature: 27, humidity: 50, light: 50, status: "Nhiệt độ cao", sign: true },
-        { id: "RSF001", name: "Hoa hồng", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Độ ẩm đất thấp", sign: true },
-        { id: "ORF001", name: "Hoa ly", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false },
-        { id: "CBF001", name: "Cây bắp cải", type: "Rau", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false },
-        { id: "HLT001", name: "Hoa lan", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false },
-        { id: "BMT001", name: "Bí ngô", type: "Hoa quả", temperature: 27, humidity: 50, light: 50, status: "Nhiệt độ cao", sign: true },
-        { id: "LMT001", name: "Lá lốt", type: "Lá", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false },
+        { id: "TMT001", name: "Cà chua", type: "Hoa quả", temperature: 27, humidity: 50, light: 50, status: "Nhiệt độ cao", sign: true, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
+        { id: "RSF001", name: "Hoa hồng", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Độ ẩm đất thấp", sign: true, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
+        { id: "ORF001", name: "Hoa ly", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
+        { id: "CBF001", name: "Cây bắp cải", type: "Rau", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
+        { id: "HLT001", name: "Hoa lan", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
+        { id: "BMT001", name: "Bí ngô", type: "Hoa quả", temperature: 27, humidity: 50, light: 50, status: "Nhiệt độ cao", sign: true, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
+        { id: "LMT001", name: "Lá lốt", type: "Lá", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
     ];
     return (
         <div className="home">

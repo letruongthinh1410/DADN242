@@ -1,18 +1,18 @@
 import React from "react";
 import { useState } from "react";
 import "./Profile.css";
+
 import { Avatar, Menu, MenuItem } from '@mui/material';
-import { IoIosArrowDown } from "react-icons/io";
+
 import { NavLink } from "react-router-dom";
 
-import { IoPersonSharp } from "react-icons/io5";
-import { MdOutlineLogout } from "react-icons/md";
-
 import Jack from "../../../assets/jack.jpg"; //xài tạm
+
+import { CircleUser, LogOut, ChevronDown } from "lucide-react";
 const Profile = () => {
     const profiles = [
-        {name: "Thông tin tài khoản", link: "", key: "info", style: "text-dark text-decoration-none", icon: <IoPersonSharp />},
-        {name: "Đăng xuất", link: "", key: "logout", style: "text-danger text-decoration-none", icon: <MdOutlineLogout />},
+        {name: "Thông tin tài khoản", link: "", key: "info", style: "text-dark text-decoration-none", icon: <CircleUser size={20} style={{marginRight: "0.5rem"}}/>},
+        {name: "Đăng xuất", link: "", key: "logout", style: "text-danger text-decoration-none", icon: <LogOut size={20} style={{marginRight: "0.5rem"}}/>},
     ]
     const [anchorEl, setAnchorEl] = useState(null); 
 
@@ -30,7 +30,7 @@ const Profile = () => {
                     />
                     <div className="profile_name">Tuan</div>
                 </div>
-                <IoIosArrowDown className="arrow_down"/>  
+                <ChevronDown className="arrow_down"/>  
             </div>
             <Menu
                 id="simple-menu"
