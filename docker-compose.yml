@@ -1,0 +1,25 @@
+
+services:
+  redis:
+    image: redis:7.0.15
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  spring_app:
+    image: brookvita3/qlnk-app:1.0
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
