@@ -34,7 +34,7 @@ const PlantCard = ({ plant }) => {
                 {/* Thông tin môi trường */}
                 <NavLink to="parameter" style={{textDecoration: "none", color: "black"}}>
                     <Typography variant="body2" fontWeight="bold" mt={1}>
-                    <Thermometer size={20} style = {{marginRight: "1rem"}}/> Nhiệt độ - Độ ẩm - Ánh sáng
+                        <Thermometer size={20} style = {{marginRight: "1rem"}}/> Nhiệt độ - Độ ẩm - Ánh sáng
                     </Typography>
                     <Typography variant="body2">
                         {plant.temperature}°C - {plant.humidity}% - {plant.light}%
