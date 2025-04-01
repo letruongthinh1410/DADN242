@@ -1,5 +1,5 @@
 import React, { useState,useEffect,useRef } from "react";
-import { Card, CardContent, Typography, Button, Box, Pagination, Modal, TextField, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
+import { Card, CardContent, Typography,Box, Pagination,Modal,Button, TextField, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
 import { IoCalendarOutline } from "react-icons/io5";
 import { IoIosAddCircle } from "react-icons/io";
 import { NavLink } from "react-router-dom";
@@ -7,75 +7,120 @@ import { FiTool, FiTrash } from "react-icons/fi";
 import { PiNotePencilLight } from "react-icons/pi";
 import { RiTreeFill } from "react-icons/ri";
 import { FaRegClock } from "react-icons/fa6";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
-const EditReminderModal = ({ open, onClose, reminder, onSave ,plants}) => {
+
+
+const parseTimeString = (timeString) => {
+    const [timePart, dayPart, datePart] = timeString.split(", ");
+    const [hourMinute, period] = timePart.split(" ");
+    const [hour, minute] = hourMinute.split(":").map(Number);
+    const [month, day, year] = datePart.split(" ");
+    
+    return {
+        hour: period === "PM" && hour !== 12 ? hour + 12 : hour,
+        minute,
+        day: Number(day),
+        month: new Date(`${month} 1, 2025`).getMonth() + 1,
+        year: Number(year)
+    };
+};
+const EditReminderModal = ({ open, onClose, reminder, onSave, plants }) => {
     const [editedReminder, setEditedReminder] = useState(reminder);
+
     const handleChange = (event) => {
         const { name, value } = event.target;
-    
         if (name === "Name") {
             const selectedPlant = plants.find((plant) => plant.Id === value);
             setEditedReminder((prev) => ({
                 ...prev,
-                Name: `${selectedPlant.Name}(${selectedPlant.Id})`,
+                Name: `${selectedPlant.Name} (${selectedPlant.Id})`,
                 Id: selectedPlant.Id
             }));
         } else {
             setEditedReminder((prev) => ({ ...prev, [name]: value }));
         }
     };
+
+    const handleDateTimeChange = (newDateTime) => {
+        setEditedReminder((prev) => ({
+            ...prev,
+            year: newDateTime.year(),
+            month: newDateTime.month() + 1, // Month in dayjs is 0-based
+            day: newDateTime.date(),
+            hour: newDateTime.hour(),
+            minute: newDateTime.minute(),
+            second: newDateTime.second()
+        }));
+    };
+
     const handleSave = () => {
         onSave(editedReminder);
         onClose();
     };
-    console.log(editedReminder)
+
     return (
         <Modal open={open} onClose={onClose}>
-            <Box sx={{ 
-                position: "absolute", top: "50%", left: "50%", 
-                transform: "translate(-50%, -50%)", width: 400, bgcolor: "white", 
-                boxShadow: 24, p: 4, borderRadius: 2
+            <Box sx={{
+                position: "absolute", top: "50%", left: "50%",
+                transform: "translate(-50%, -50%)", width: 800, bgcolor: "white",
+                boxShadow: 24, p: 4, borderRadius: 2, paddingTop: "10px"
             }}>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ textAlign: "center", p: 1, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)", borderRadius: "10px", backgroundImage: "linear-gradient(to bottom, #0CD908, #0F6918)", color: "white" }}>
                     Sửa thông tin nhắc nhở
                 </Typography>
-                
-                 {/* Dropdown chọn tên cây */}
-                 <FormControl fullWidth margin="normal">
-                        <InputLabel>Tên cây</InputLabel>
-                        <Select
-                            name="Name"
-                            value={editedReminder.Id || ""}
-                            onChange={handleChange}
-                        >
-                            {plants.map((plant) => (
-                                <MenuItem key={plant.Id} value={plant.Id}>
-                                    {plant.Name} ({plant.Id})
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                <Box sx={{ display: "flex", gap: 3 }}>
+                    <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                        <Typography variant="subtitle1" fontWeight="bold">Tên cây</Typography>
+                        <FormControl fullWidth  sx={{ marginBottom: 1}} >
+                            <Select
+                                name="Name"
+                                value={editedReminder.Id || ""}
+                                onChange={handleChange}
+                            >
+                                {plants.map((plant) => (
+                                    <MenuItem key={plant.Id} value={plant.Id}>
+                                        {plant.Name} ({plant.Id})
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                <TextField
-                    fullWidth margin="normal" label="Ghi chú" name="note"
-                    value={editedReminder.note} onChange={handleChange}
-                />
-                <FormControl fullWidth margin="normal">
-                    <InputLabel>Tần suất</InputLabel>
-                    <Select
-                        name="frequency" value={editedReminder.frequency} onChange={handleChange}
-                    >
-                        <MenuItem value="Mỗi ngày">Mỗi ngày</MenuItem>
-                        <MenuItem value="Mỗi tuần">Mỗi tuần</MenuItem>
-                        <MenuItem value="Mỗi tháng">Mỗi tháng</MenuItem>
-                    </Select>
-                </FormControl>
-                <TextField
-                    fullWidth margin="normal" label="Thời gian" name="time"
-                    value={editedReminder.time} onChange={handleChange}
-                />
+                        <Typography variant="subtitle1" fontWeight="bold">Tần suất</Typography>
+                        <FormControl fullWidth  sx={{ marginBottom: 1}}>
+                            <Select
+                                name="frequency"
+                                value={editedReminder.frequency}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value="Mỗi ngày">Mỗi ngày</MenuItem>
+                                <MenuItem value="Mỗi tuần">Mỗi tuần</MenuItem>
+                                <MenuItem value="Mỗi tháng">Mỗi tháng</MenuItem>
+                            </Select>
+                        </FormControl>
 
-                <Box mt={2} display="flex" justifyContent="space-between">
+                        <Typography variant="subtitle1" fontWeight="bold">Ngày và giờ nhắc</Typography>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                                value={dayjs(`${editedReminder.year}-${editedReminder.month}-${editedReminder.day} ${editedReminder.hour || 0}:${editedReminder.minute || 0}:${editedReminder.second || 0}`)}
+                                onChange={handleDateTimeChange}
+                                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                            />
+                        </LocalizationProvider>
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                        <Typography variant="h6" fontWeight="bold">Ghi chú</Typography>
+                        <TextField
+                            fullWidth multiline rows={10} name="note"
+                            value={editedReminder.note} onChange={handleChange}
+                        />
+                    </Box>
+                </Box>
+
+                <Box display="flex" justifyContent="center" gap={2} mt={2}>
                     <Button onClick={onClose} variant="outlined">Hủy</Button>
                     <Button onClick={handleSave} variant="contained" color="primary">Lưu</Button>
                 </Box>
@@ -217,27 +262,27 @@ const ReminderList = ({ reminders }) => {
                 />
             </Box>
             <NavLink to="AddRm" style={{ textDecoration: "none" }}>
-    <Button 
-        variant="contained" 
-        sx={{
-            background: "linear-gradient(to right, #00c853, #b2ff59)",
-            color: "white",
-            fontWeight: "bold",
-            textTransform: "none",
-            borderRadius: "25px",
-            padding: "10px 20px",
-            position: "fixed",
-            right: "20px",  // Căn sang góc phải
-            bottom: "20px", // Căn xuống đáy màn hình
-            zIndex: 1000, // Đảm bảo nằm trên các phần khác
-            "&:hover": {
-                background: "linear-gradient(to right, #00a152, #76ff03)"
-            }
-        }}
-    >
-        <IoIosAddCircle style={{ marginRight: "0.6rem" }} /> Thêm lịch nhắc nhở
-    </Button>
-</NavLink>
+                <Button 
+                    variant="contained" 
+                    sx={{
+                        background: "linear-gradient(to right, #00c853, #b2ff59)",
+                        color: "white",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        borderRadius: "25px",
+                        padding: "10px 20px",
+                        position: "fixed",
+                        right: "20px",  // Căn sang góc phải
+                        bottom: "20px", // Căn xuống đáy màn hình
+                        zIndex: 1000, // Đảm bảo nằm trên các phần khác
+                        "&:hover": {
+                            background: "linear-gradient(to right, #00a152, #76ff03)"
+                        }
+                    }}
+                >
+                    <IoIosAddCircle style={{ marginRight: "0.6rem" }} /> Thêm lịch nhắc nhở
+                </Button>
+            </NavLink>
         </Box>
     );
 };

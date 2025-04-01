@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { Grid2, Pagination } from "@mui/material";
+import { Grid, Pagination } from "@mui/material";
 
 import { Card, CardContent, Typography, Button, Alert, Box, Tooltip  } from "@mui/material";
 
@@ -90,7 +90,7 @@ const PlantList = ({ plants }) => {
             }}
         >
             {/* Grid hiển thị danh sách cây */}
-            <Grid2 
+            <Grid 
                 container 
                 spacing={1} 
                 justifyContent="start"
@@ -98,11 +98,11 @@ const PlantList = ({ plants }) => {
                 
             >
                 {currentPlants.map((plant, index) => (
-                    <Grid2 item key={index}>
+                    <Grid item key={index}>
                         <PlantCard plant={plant} />
-                    </Grid2>
+                    </Grid>
                 ))}
-            </Grid2>
+            </Grid>
 
             {/* Pagination luôn ở dưới */}
             <Box sx={{ display: "flex", justifyContent: "space-around", alignItems: "center", mt: 1 }}>
