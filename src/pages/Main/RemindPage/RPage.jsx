@@ -1,12 +1,7 @@
 import React, { useState,useEffect,useRef } from "react";
 import { Card, CardContent, Typography, Button, Box, Pagination, Modal, TextField, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
-import { IoCalendarOutline } from "react-icons/io5";
-import { IoIosAddCircle } from "react-icons/io";
 import { NavLink } from "react-router-dom";
-import { FiTool, FiTrash } from "react-icons/fi";
-import { PiNotePencilLight } from "react-icons/pi";
-import { RiTreeFill } from "react-icons/ri";
-import { FaRegClock } from "react-icons/fa6";
+import { TreeDeciduous, CalendarDays, NotebookPen, Clock, Hammer, Trash2, CirclePlus} from 'lucide-react';
 
 const EditReminderModal = ({ open, onClose, reminder, onSave ,plants}) => {
     const [editedReminder, setEditedReminder] = useState(reminder);
@@ -117,18 +112,18 @@ const ReminderCard = ({ reminder ,plants}) => {
                     {reminder.title} 
                 </Typography>
                 <Typography variant="body2" gutterBottom>
-                    <RiTreeFill color="#48752C" style = {{marginRight: "1rem",}}/> {reminder.Name} ({reminder.Id})
+                    <TreeDeciduous color="#48752C" style = {{marginRight: "1rem",}}/> {reminder.Name} ({reminder.Id})
                  </Typography>
                  {/* ---------- */}
                  <Typography variant="body2" mt={1}>
-                    <IoCalendarOutline style={{ marginRight: "1rem" }} />
+                    <CalendarDays style={{ marginRight: "1rem", fontSize: "0.6rem", }} />
                     <span style={{ fontWeight: "bold" }}>Thời gian:</span> {reminder.time}
                 </Typography>
               
                 {/* Ghi chú với giới hạn số dòng */}
                 <Typography variant="body2" mt={1} style={{ display: "flex", alignItems: "flex-start" }}>
                     <div style={{ marginRight: "1rem", display: "flex", alignItems: "center" }}>
-                        <PiNotePencilLight />
+                        <NotebookPen />
                     </div>
                     <span
                         ref={noteRef}
@@ -155,7 +150,7 @@ const ReminderCard = ({ reminder ,plants}) => {
                 )}
                 
                 <Typography variant="body2" mt={1}>
-                    <FaRegClock style={{ marginRight: "1rem" }} />
+                    <Clock style={{ marginRight: "1rem" }} />
                     <span style={{ fontWeight: "bold" }}>Tần suất:</span> {reminder.frequency}
                 </Typography>
                 <Box display="flex" justifyContent="space-between" sx={{ p: 2, mt: "auto" }}>
@@ -164,7 +159,7 @@ const ReminderCard = ({ reminder ,plants}) => {
                           fullWidth
                           sx={{ backgroundColor: "#FF0000", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.3rem 0.5rem"}}
                       >
-                          <FiTrash style = {{marginRight: "0.6rem",}}/> Xóa nhắc nhở
+                          <Trash2 style = {{marginRight: "0.6rem",}}/> Xóa nhắc nhở
                     </Button>
 
                     <NavLink to="#" style={{display: "flex", justifyContent: "end", textDecoration: "none"}}>
@@ -174,7 +169,7 @@ const ReminderCard = ({ reminder ,plants}) => {
                         sx={{ backgroundColor: "#0CD908", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.3rem 0.5rem"}}
                         onClick={() => setEditModalOpen(true)}
                     >
-                        <FiTool style = {{marginRight: "0.6rem",}}/> Sửa thông tin
+                        <Hammer style = {{marginRight: "0.6rem",}}/> Sửa thông tin
                     </Button>
                     </NavLink>
                 </Box>
@@ -217,27 +212,27 @@ const ReminderList = ({ reminders }) => {
                 />
             </Box>
             <NavLink to="AddRm" style={{ textDecoration: "none" }}>
-    <Button 
-        variant="contained" 
-        sx={{
-            background: "linear-gradient(to right, #00c853, #b2ff59)",
-            color: "white",
-            fontWeight: "bold",
-            textTransform: "none",
-            borderRadius: "25px",
-            padding: "10px 20px",
-            position: "fixed",
-            right: "20px",  // Căn sang góc phải
-            bottom: "20px", // Căn xuống đáy màn hình
-            zIndex: 1000, // Đảm bảo nằm trên các phần khác
-            "&:hover": {
-                background: "linear-gradient(to right, #00a152, #76ff03)"
-            }
-        }}
-    >
-        <IoIosAddCircle style={{ marginRight: "0.6rem" }} /> Thêm lịch nhắc nhở
-    </Button>
-</NavLink>
+                <Button 
+                    variant="contained" 
+                    sx={{
+                        background: "linear-gradient(to right, #00c853, #b2ff59)",
+                        color: "white",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        borderRadius: "25px",
+                        padding: "10px 20px",
+                        position: "fixed",
+                        right: "20px",  // Căn sang góc phải
+                        bottom: "20px", // Căn xuống đáy màn hình
+                        zIndex: 1000, // Đảm bảo nằm trên các phần khác
+                        "&:hover": {
+                            background: "linear-gradient(to right, #00a152, #76ff03)"
+                        }
+                    }}
+                >
+                    <CirclePlus style={{ marginRight: "0.6rem" }} /> Thêm lịch nhắc nhở
+                </Button>
+            </NavLink>
         </Box>
     );
 };
@@ -247,7 +242,7 @@ const ReminderSchedule = () => {
         { Id : 1,Name: "Cây cà chua",title: "Nhắc nhở cây cà chua",  time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây 1111111 11111111 11111111111 111111111 11111 11111 11111 111111 11 111111111 11111 11111 11111 111111 11", frequency: "Mỗi ngày" },
         { Id : 2,Name: "Hoa hồng",title: "Nhắc nhở hoa hồng", time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây", frequency: "Mỗi ngày" },
         { Id : 3,Name: "Hoa cúc",title: "Nhắc nhở hoa cúc", time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây", frequency: "Mỗi ngày" },
-        { Id :4,Name: "Cây cà chua",title: "Nhắc nhở cây cà chua", time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây", frequency: "Mỗi ngày" },
+        { Id : 4,Name: "Cây cà chua",title: "Nhắc nhở cây cà chua", time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây", frequency: "Mỗi ngày" },
         { Id : 5,Name: "Hoa hồng",title: "Nhắc nhở hoa hồng", time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây", frequency: "Mỗi ngày" },
         { Id : 6,Name: "Hoa cúc",title: "Nhắc nhở hoa cúc", time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây", frequency: "Mỗi ngày" },
         { Id : 7,Name: "Hoa cúc",title: "Nhắc nhở hoa cúc", time: "7:07 PM ,Sunday, February 23, 2025", note: "Tưới nước cho cây", frequency: "Mỗi ngày" }

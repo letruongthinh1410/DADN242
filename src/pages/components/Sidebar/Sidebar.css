@@ -1,5 +1,6 @@
 .sidebar {
-    height: 100vh;
+    height: 100%;
+    min-height: 100vh;
     padding-top: 2rem;
     background-color: #072A24;
 }

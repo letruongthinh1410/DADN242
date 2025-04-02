@@ -11,14 +11,14 @@ import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 const Sidebar = () => {
     const menuItems = [
         {text: "Cây trồng", icon: <Trees />, link: "plants", key: "plant",},
-        {text: "Thống kê", icon: <ChartSpline />, link: "statistics", key: "statistic",},
+        {text: "Thông số", icon: <ChartSpline />, link: "parameter", key: "parameter",},
         {text: "Lên lịch", icon: <CalendarCheck />, link: "schedule", key: "schedule",},
         {text: "Thông tin tài khoản", icon: <CircleUserRound />, link: "infor-account", key: "infor",},
     ]
     return (
         <div className="sidebar d-flex flex-column align-items-center justify-content-start" style={{boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",}}>
             <Logo /> 
-            <List>
+            <List style={{marginTop: "2rem"}}>
                 {menuItems.map((item, index) => (
                     <ListItem key={index} disablePadding>
                         <NavLink 

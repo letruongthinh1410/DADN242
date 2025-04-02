@@ -20,7 +20,7 @@ import {
   
   import { ArrowDownToLine, CircleX, Trash2, SquarePlus } from "lucide-react";
 
-  import { NavLink } from "react-router-dom";
+  import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
 const PlantForm = ({plantData, handleChange}) => {
     return (
@@ -91,7 +91,7 @@ const PlantForm = ({plantData, handleChange}) => {
                 value={plantData.light}
                 onChange={handleChange}
                 InputProps={{
-                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
                 }}
                 color="success"
                 size="small"
@@ -101,12 +101,18 @@ const PlantForm = ({plantData, handleChange}) => {
     );
 };
 const UpdatePlant = () => {
+    const navigate = useNavigate();
+
+    const location = useLocation();
+    const plant = location.state?.plant;
+
     const [plantData, setPlantData] = React.useState({
-        id: "",
-        name: "",
-        temperature: "",
-        humidity: "",
-        light: "",
+        id: plant.id,
+        name: plant.name,
+        temperature: plant.temperature,
+        humidity: plant.humidity,
+        light: plant.light,
+        devices: plant.devices,
     });
 
     const handleChange = (e) => {
@@ -148,6 +154,12 @@ const UpdatePlant = () => {
         setOpenDialog(false);
     };
 
+    const handleUpdatePlant = () => {
+        //gọi API update
+        
+        navigate ("/plants")
+    }
+
     return (
         <div className="add-plant" style={{ padding: "1rem 4rem", }}>
             <Grid2 container spacing={10}>
@@ -170,10 +182,10 @@ const UpdatePlant = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {addedDevices.map((device, index) => (
+                                    {plantData.devices.map((device, index) => (
                                     <TableRow key={index}>
                                         <TableCell style={{textAlign: "center"}}>{device.id}</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>{device.type}</TableCell>
+                                        <TableCell style={{textAlign: "center"}}>{device.name}</TableCell>
                                         <TableCell style={{textAlign: "center"}}>
                                             <IconButton color="error" onClick={() => handleDeleteDevice(device.id)}>
                                                 <Trash2 />
@@ -245,7 +257,7 @@ const UpdatePlant = () => {
                     variant="contained" 
                     backgroundColor="#99CCFF" 
                     style = {{padding: "0.5rem 0", marginRight: "1rem", textTransform: "none", width: "10rem", backgroundColor: "#FFCC00"}} 
-                    fullWidth onClick={handleAddDevice}
+                    fullWidth onClick={handleUpdatePlant}
                 >
                     <ArrowDownToLine style = {{marginRight: "0.6rem",}}/> Lưu thay đổi
                 </Button>
@@ -254,7 +266,7 @@ const UpdatePlant = () => {
                         variant="contained" 
                         color="error" 
                         style = {{padding: "0.5rem 0", textTransform: "none", width: "7rem"}} 
-                        fullWidth onClick={handleAddDevice}
+                        fullWidth
                     >
                         <CircleX style = {{marginRight: "0.6rem",}}/> Huỷ
                     </Button>

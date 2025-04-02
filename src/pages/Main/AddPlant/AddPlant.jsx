@@ -19,7 +19,8 @@ import {
   } from "@mui/material";
   
   import { SquarePlus, CirclePlus, Trash2, CircleX } from "lucide-react";
-  import { NavLink } from "react-router-dom";
+  import { NavLink, useNavigate } from "react-router-dom";
+
 
 const PlantForm = ({plantData, handleChange}) => {
     return (
@@ -100,6 +101,8 @@ const PlantForm = ({plantData, handleChange}) => {
     );
 };
 const AddPlant = () => {
+    const navigate = useNavigate();
+
     const [plantData, setPlantData] = React.useState({
         id: "",
         name: "",
@@ -128,9 +131,14 @@ const AddPlant = () => {
     const [openDialog, setOpenDialog] = React.useState(false);
 
     const handleAddDevice = () => {
-        if (selectedType && selectedDevice) {
-            setAddedDevices([...addedDevices, { id: selectedDevice, type: selectedType }]);
-            setSelectedDevice("");
+        if (selectedType && selectedDevice ) {
+            if (!addedDevices.some(device => device.id === selectedDevice)) {
+                setAddedDevices([...addedDevices, { id: selectedDevice, type: selectedType }]);
+                setSelectedDevice("");
+            }
+            else {
+                alert("Thiết bị đã được thêm vào!")
+            }
         }
     };
 
@@ -146,6 +154,12 @@ const AddPlant = () => {
         setAddedDevices([]);
         setOpenDialog(false);
     };
+
+    const handleAddPlant = () => {
+        // gọi API post thêm cây trồng
+
+        navigate("/plants")
+    }
 
     return (
         <div className="add-plant" style={{ padding: "1rem 4rem", }}>
@@ -245,7 +259,7 @@ const AddPlant = () => {
                     variant="contained" 
                     backgroundColor="#0ba6ff" 
                     style = {{padding: "0.5rem 0", marginRight: "1rem", textTransform: "none", width: "10rem"}} 
-                    fullWidth onClick={handleAddDevice}
+                    fullWidth onClick={handleAddPlant}
                 >
                     <CirclePlus style = {{marginRight: "0.6rem",}}/> Thêm cây trồng
                 </Button>
@@ -254,7 +268,7 @@ const AddPlant = () => {
                         variant="contained" 
                         color="error" 
                         style = {{padding: "0.5rem 0", textTransform: "none", width: "7rem"}} 
-                        fullWidth onClick={handleAddDevice}
+                        fullWidth
                     >
                         <CircleX style = {{marginRight: "0.6rem",}}/> Huỷ
                     </Button>

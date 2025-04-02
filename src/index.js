@@ -9,12 +9,12 @@ import Blank from './pages/Blank.jsx'
 import Error from './pages/Error.jsx'
 
 import Base from './pages/Base.jsx';
-import Home from './pages/Main/Home/Home.jsx';
+import Plants from './pages/Main/Plants/Plants.jsx';
 
 import AddPlant from './pages/Main/AddPlant/AddPlant.jsx';
 import UpdatePlant from './pages/Main/UpdatePlan/UpdatePlant.jsx';
 import Parameter from './pages/Main/Parameter/Parameter.jsx';
-import TChu from './pages/Main/HomePage/HomePage.js'
+import TChu from './pages/Main/HomePage/HomePage.jsx'
 import ReminderSchedule from './pages/Main/RemindPage/RPage.jsx'
 import ReminderForm from './pages/Main/AddRm/AddRm.jsx'
 
@@ -26,7 +26,7 @@ const App = () => {
             errorElement: <Error />,
         },
         {
-            path: 'base',
+            path: '',
             element: <Blank/>,
             errorElement: <Error />,
             children: [
@@ -36,7 +36,7 @@ const App = () => {
                     children: [
                         {
                             path: 'plants',
-                            element: <Home />,
+                            element: <Plants />,
                             handle: { title: "Danh sách cây trồng" },
                         },
                         {
@@ -50,7 +50,7 @@ const App = () => {
                             handle: { title: "Cập nhật cây trồng" },
                         },
                         {
-                            path: 'plants/parameter',
+                            path: 'parameter',
                             element: <Parameter />,
                             handle: { title: "Thông số cây trồng" },
                         },  

@@ -4,10 +4,16 @@ import { Grid2, Pagination } from "@mui/material";
 
 import { Card, CardContent, Typography, Button, Alert, Box, Tooltip  } from "@mui/material";
 
-import { TreeDeciduous, Thermometer, List, Info, Hammer, CirclePlus, Dot  } from 'lucide-react';
+import { TreeDeciduous, Thermometer, List, Info, Hammer, CirclePlus, Dot, CircleX, Droplets, Sun} from 'lucide-react';
 
 import { NavLink } from "react-router-dom";
+import { takePlantsList } from "../../../api";
+
 const PlantCard = ({ plant }) => {
+    const handleDeletePlant = () => {
+        //gọi API xoá cây trồng
+        alert(`Xoá cây trồng ${plant.id} thành công!`);
+    }
     return (
         <Card 
             sx={{ 
@@ -32,19 +38,27 @@ const PlantCard = ({ plant }) => {
                 </Typography>
 
                 {/* Thông tin môi trường */}
-                <NavLink to="parameter" style={{textDecoration: "none", color: "black"}}>
+                <NavLink to={`/parameter`} state={{ plant }} style={{textDecoration: "none", color: "black"}}>
                     <Typography variant="body2" fontWeight="bold" mt={1}>
-                    <Thermometer size={20} style = {{marginRight: "1rem"}}/> Nhiệt độ - Độ ẩm - Ánh sáng
+                        Thông số cây trồng:
                     </Typography>
-                    <Typography variant="body2">
-                        {plant.temperature}°C - {plant.humidity}% - {plant.light}%
+                    <Typography variant="body2" mt={1}>
+                        <Thermometer size={20} style = {{marginRight: "1rem"}}/> 
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem"}}>Nhiệt độ:</span> {plant.temperature[0]}°C - {plant.temperature[1]}°C
+                    </Typography>
+                    <Typography variant="body2" mt={1}>
+                        <Droplets size={20} style = {{marginRight: "1rem"}}/> 
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem"}}>Độ ẩm đất:</span> {plant.humidity[0]}% - {plant.humidity[1]}%
+                    </Typography>
+                    <Typography variant="body2" mt={1}>
+                        <Sun size={20} style = {{marginRight: "1rem"}}/> 
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem"}}>Ánh sáng:</span> {plant.light[0]}% - {plant.light[1]}%
                     </Typography>
                 </NavLink>
                 
-
                 <Typography variant="body2"  mt={1} >
                     <List size={20} style = {{marginRight: "1rem",}}/> Các thiết bị theo dõi
-                    <Tooltip title={plant.devices.join("\n")} arrow>
+                    <Tooltip title={plant.devices.map((device) => `${device.name} (${device.id})`).join(", ")} arrow>
                     <span> {/* Bọc lại để Tooltip hoạt động tốt hơn */}
                         <Info style={{ marginLeft: "1rem", cursor: "pointer" }} />
                     </span>
@@ -55,23 +69,36 @@ const PlantCard = ({ plant }) => {
                 </Typography>
 
                 {/* Nút sửa thông tin */}
-                <NavLink to="update" style={{display: "flex", justifyContent: "end", textDecoration: "none"}}>
+                <div className="d-flex justify-content-around align-items-center">
                     <Button
                         variant="contained"
                         fullWidth
-                        sx={{ backgroundColor: "#26A69A", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.3rem 0.5rem"}}
+                        onClick={handleDeletePlant}
+                        sx={{ backgroundColor: "#FF2400", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.3rem 0.5rem", marginRight: "0.3rem"}}
                     >
-                        <Hammer style = {{marginRight: "0.6rem",}}/> Sửa thông tin
+                        <CircleX style = {{marginRight: "0.6rem",}}/> Xoá cây trồng
                     </Button>
-                </NavLink>
+                    {plant && (
+                        <NavLink to={`update`} state={{ plant }} style={{display: "flex", justifyContent: "end", textDecoration: "none"}}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                sx={{ backgroundColor: "#26A69A", mt: 1.3, borderRadius: "10px", textTransform: "none", width: "fit-content", padding: "0.3rem 0.5rem"}}
+                            >
+                                <Hammer style = {{marginRight: "0.6rem",}}/> Sửa thông tin
+                            </Button>
+                        </NavLink>
+                    )}
+                </div>
+                
             </CardContent>
         </Card>
-    );
+    ); 
 };
 
 const PlantList = ({ plants }) => {
     const [page, setPage] = useState(1);
-    const plantsPerPage = 6;
+    const plantsPerPage = 3;
 
     // Tính toán số trang
     const totalPages = Math.ceil(plants.length / plantsPerPage);
@@ -80,21 +107,14 @@ const PlantList = ({ plants }) => {
     const currentPlants = plants.slice((page - 1) * plantsPerPage, page * plantsPerPage);
 
     return (
-        <Box 
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "80vh", 
-                marginBottom: "0.6rem"
-            }}
-        >
+        <Box >
             {/* Grid hiển thị danh sách cây */}
             <Grid2 
                 container 
-                spacing={1} 
-                justifyContent="start"
-                sx={{ flexGrow: 1, padding: "0 5rem"}} // Để danh sách mở rộng khi cần
+                spacing={3} 
+                justifyContent="center"
+                alignItems="start"
+                sx={{ flexGrow: 1, padding: "0 5rem", marginTop: "1rem"}} // Để danh sách mở rộng khi cần
                 
             >
                 {currentPlants.map((plant, index) => (
@@ -105,7 +125,7 @@ const PlantList = ({ plants }) => {
             </Grid2>
 
             {/* Pagination luôn ở dưới */}
-            <Box sx={{ display: "flex", justifyContent: "space-around", alignItems: "center", mt: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-around", alignItems: "center", mt: 4 }}>
                 <NavLink to="add" style={{textDecoration: "none"}}>
                         <Button
                             variant="contained"
@@ -131,18 +151,10 @@ const PlantList = ({ plants }) => {
 };
 
 const Home = () => {
-    const plants = [
-        { id: "TMT001", name: "Cà chua", type: "Hoa quả", temperature: 27, humidity: 50, light: 50, status: "Nhiệt độ cao", sign: true, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
-        { id: "RSF001", name: "Hoa hồng", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Độ ẩm đất thấp", sign: true, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
-        { id: "ORF001", name: "Hoa ly", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
-        { id: "CBF001", name: "Cây bắp cải", type: "Rau", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
-        { id: "HLT001", name: "Hoa lan", type: "Hoa", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
-        { id: "BMT001", name: "Bí ngô", type: "Hoa quả", temperature: 27, humidity: 50, light: 50, status: "Nhiệt độ cao", sign: true, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
-        { id: "LMT001", name: "Lá lốt", type: "Lá", temperature: 27, humidity: 50, light: 50, status: "Bình thường", sign: false, devices: ["Cảm biến ánh sáng AS001", "Cảm biến nhiệt độ ND001", "Cảm biến độ ẩm đất DA001"] },
-    ];
+    const plants = takePlantsList();
     return (
-        <div className="home">
-            <PlantList plants={plants} />
+        <div className="home d-flex flex-column justify-content-center" style={{height: "70vh"}}>
+            <PlantList plants={plants}/>
         </div>
     );
 }

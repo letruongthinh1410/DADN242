@@ -37,7 +37,7 @@ const ReminderForm = () => {
             p: 3, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
             transition: "all 0.3s ease-in-out",
             "&:hover": { boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.2)" },
-            display: "flex", flexDirection: "column", height: "100%",
+            height: "100%",
             border: "1px solid #ccc", 
             borderRadius: "10px", 
             margin: "auto", 
@@ -109,7 +109,7 @@ const ReminderForm = () => {
             {/* Nút xác nhận và trở về */}
             <Box display="flex" sx={{ gap: 4 , maxWidth: "40%" , alignItems: "center" ,margin: "auto" , marginTop: "1rem"}}>
                 <Button variant="contained" sx={{ backgroundColor: "#00c853", color: "white" }}>+ Xác Nhận</Button>
-                 <NavLink to="schedule" style={{ textDecoration: "none" }}>
+                 <NavLink to="/base/schedule" style={{ textDecoration: "none" }}>
                     <Button variant="contained" sx={{ backgroundColor: "gray", color: "white" }}>↩ Trở về</Button>
                  </NavLink>
                 

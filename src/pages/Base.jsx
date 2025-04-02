@@ -25,13 +25,15 @@ const Base = () => {
                     flexDirection: { xs: "column", md: "row" } // Nhỏ thì cột, lớn thì hàng
                 }}
             >
-                <Grid2 size={{ xs: 12, md: 2 }}>
+                <Grid2 
+                    size={{ xs: 12, md: 2 }}    
+                >
                     <Sidebar />
                 </Grid2>
                 <Grid2 size={{ xs: 12, md: 10 }}>
                     <Header />
                     <Title title={currentTitle} />
-                    <Outlet />
+                    <Outlet/>
                 </Grid2>
             </Grid2>
         </div>

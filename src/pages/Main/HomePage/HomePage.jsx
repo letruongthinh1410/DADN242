@@ -2,7 +2,7 @@ import './HomePage.css';
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import {Container, Row, Col, Button, Card ,Modal } from "react-bootstrap"; 
+import {Container, Row, Col, Card ,Modal } from "react-bootstrap"; 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.png";
@@ -40,20 +40,21 @@ function TChu() {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8080/auth/login",
+      const response = await axios.post("http://localhost:8080/v1/auth/login",
       {
           email: loginEmail,
           password: password,
       },
       {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,  // 🔥 Thêm dòng này để gửi cookies nếu có
+          headers: { "Content-Type": "application/json" }, 
       }
     );
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
       alert("Đăng nhập thành công!");
-      navigate("/base");
+      navigate("/plants");
     } catch (error) {
       alert("Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.");
       console.error("Lỗi đăng nhập:", error.response?.data || error.message);
@@ -90,7 +91,6 @@ function TChu() {
     <div className="home-page">
       <div className="header-section">
         <Container>
-          
           <Row className="align-items-center">
             <Col lg={6} className="text-white">
               <div className="lg-ns" style={{display:"flex" , marginBottom : "10px"}} >
@@ -173,8 +173,8 @@ function TChu() {
               <div className="logo">
                 <img src={logo} alt="Logo" />
               </div>
+                <h4>Giám sát cây trồng</h4>
               
-              <h4>Giám sát cây trồng</h4>
             </div>
 
             <div className = "login-content col-lg-6 col-12"  >

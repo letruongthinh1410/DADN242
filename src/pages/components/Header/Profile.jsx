@@ -6,7 +6,7 @@ import { Avatar, Menu, MenuItem } from '@mui/material';
 
 import { NavLink } from "react-router-dom";
 
-import Jack from "../../../assets/jack.jpg"; //xài tạm
+import Jack from "../../../assets/jack.jpg"; 
 
 import { CircleUser, LogOut, ChevronDown } from "lucide-react";
 const Profile = () => {
@@ -44,7 +44,7 @@ const Profile = () => {
                 {profiles.map((profile, index) => (
                 <MenuItem key={index} onClick={() => setAnchorEl(null)}>
                     <NavLink to={profile.link} className={profile.style}>
-                    {profile.icon} {profile.name}
+                        {profile.icon} {profile.name}
                     </NavLink>
                 </MenuItem>
                 ))}
