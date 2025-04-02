@@ -1,6 +1,6 @@
 import React from "react";
 
-import { FormControl, Select, MenuItem, Typography, Grid2, Alert, Button, Switch, TableContainer, Table, TableBody, TableCell, TableHead, TableRow} from "@mui/material";
+import { FormControl, Select, MenuItem, Typography, Grid, Alert, Button, Switch, TableContainer, Table, TableBody, TableCell, TableHead, TableRow} from "@mui/material";
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import { LineChart } from "@mui/x-charts/LineChart";
 import { TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -99,8 +99,8 @@ const Parameter = () => {
     }
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
-            <Grid2 container spacing={1} style={{padding: "0 4rem"}}>
-                <Grid2 size={{xs: 12, md: 8}}>
+            <Grid container spacing={1} style={{padding: "0 4rem"}}>
+                <Grid size={{xs: 12, md: 8}}>
                     <FormControl fullWidth style={{ marginBottom: "10px", width: "13rem" }} >
                         <Typography fontWeight="bold" style={{marginBottom: "0.3rem"}}>Cây trồng:</Typography>
                         <Select value={selectedPlant} onChange={(e) => setPlant(e.target.value)} size="small">
@@ -111,14 +111,14 @@ const Parameter = () => {
                             ))}
                         </Select>
                     </FormControl>
-                    <Grid2 container spacing={2} padding={2}>
-                        <Grid2 size={12}>
+                    <Grid container spacing={2} padding={2}>
+                        <Grid size={12}>
                             <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
                                 Độ ẩm đất
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 
+                        <Grid 
                             size={{xs: 12, md: 5}} 
                             container 
                             spacing={2} 
@@ -172,21 +172,21 @@ const Parameter = () => {
                                 >
                                     Tưới tiêu
                                 </Button>
-                        </Grid2>
-                        <Grid2 size={{xs: 12, md: 4}}  container spacing={1} style={{height: "fit-content"}}>
-                            <Grid2 size={12}>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 4}}  container spacing={1} style={{height: "fit-content"}}>
+                            <Grid size={12}>
                                 <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start",}} >
                                     Hẹn giờ tưới nước:
                                 </Typography>
-                            </Grid2>
+                            </Grid>
                             <div className="d-flex align-items-center">
-                                <Grid2 size={{xs: 12, md: 6}}  style={{width: "13rem",}}>
+                                <Grid size={{xs: 12, md: 6}}  style={{width: "13rem",}}>
                                     <TimePicker
                                         onChange={(newTime) => setTime(newTime)}
                                         value={time}
                                     />
-                                </Grid2>
-                                <Grid2 size={{xs: 12, md: 6}} >
+                                </Grid>
+                                <Grid size={{xs: 12, md: 6}} >
                                     <Button
                                         variant="contained"
                                         sx={{
@@ -202,19 +202,19 @@ const Parameter = () => {
                                         }}>
                                         Lưu
                                     </Button>
-                                </Grid2>
+                                </Grid>
                             </div>
-                        </Grid2>
-                    </Grid2>   
-                    <Grid2 container spacing={1} padding={2}>
-                        <Grid2 size={{xs: 12, md: 5}} container spacing={2} padding={2}>
-                            <Grid2 size={12}>
+                        </Grid>
+                    </Grid>   
+                    <Grid container spacing={1} padding={2}>
+                        <Grid size={{xs: 12, md: 5}} container spacing={2} padding={2}>
+                            <Grid size={12}>
                                 <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
                                     Nhiệt độ
                                 </Typography>
-                            </Grid2>
+                            </Grid>
                             <div className="d-flex align-items-center justify-content-start">
-                                <Grid2  
+                                <Grid  
                                     size={{xs: 12, md: 6}} 
                                     className="d-flex flex-column" 
                                     style={{
@@ -250,8 +250,8 @@ const Parameter = () => {
                                             <span style={{ fontSize: "14px", color: "gray" }}>40</span>
                                         </div>
                                     </div>
-                                </Grid2>
-                                <Grid2 size={{xs: 12, md: 6}} className="d-flex align-items-center justify-content-center">
+                                </Grid>
+                                <Grid size={{xs: 12, md: 6}} className="d-flex align-items-center justify-content-center">
                                     <Button
                                         variant="contained"
                                         sx={{
@@ -271,17 +271,17 @@ const Parameter = () => {
                                     >
                                         Làm mát
                                     </Button>
-                                </Grid2>
+                                </Grid>
                             </div>
-                        </Grid2>
-                        <Grid2 size={{xs: 12, md: 7}} container spacing={2} padding={2}>
-                            <Grid2 size={12}>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 7}} container spacing={2} padding={2}>
+                            <Grid size={12}>
                                 <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
                                     Ánh sáng
                                 </Typography>
-                            </Grid2>
+                            </Grid>
                             <div className="d-flex align-items-center justify-content-start">
-                                <Grid2  
+                                <Grid  
                                     size={{xs: 12, md: 5}} 
                                     className="d-flex flex-column" 
                                     style={{
@@ -317,8 +317,8 @@ const Parameter = () => {
                                             <span style={{ fontSize: "14px", color: "gray" }}>100</span>
                                         </div>
                                     </div>
-                                </Grid2>
-                                <Grid2 
+                                </Grid>
+                                <Grid 
                                     size={{xs: 12, md: 7}} 
                                     className="d-flex align-items-center justify-content-between"
                                     style={{marginLeft: "1.3rem",}}
@@ -330,13 +330,13 @@ const Parameter = () => {
                                         color="warning"
                                     />
                                     <span>Cuốn màn</span>
-                                </Grid2>
+                                </Grid>
                             </div>
-                        </Grid2>
-                    </Grid2>
-                </Grid2>
-                <Grid2 size={{xs: 12, md: 4}} container spacing={1} padding={2} className="d-flex flex-column">
-                    <Grid2 size={12} style={{margin: "0 3rem"}}>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid size={{xs: 12, md: 4}} container spacing={1} padding={2} className="d-flex flex-column">
+                    <Grid size={12} style={{margin: "0 3rem"}}>
                         <Typography variant="h6" fontWeight="bold" style={{marginBottom: "0.7rem"}}>
                             {selectedPlant.id} : {selectedPlant.name}
                         </Typography>
@@ -352,8 +352,8 @@ const Parameter = () => {
                         <Typography variant="body2" color={selectedPlant.sign ? "error" : "success"} mt={1}>
                             <Alert severity={selectedPlant.sign ? "error" : "success"} style = {{padding: "0 1rem", maxWidth: "15rem", maxHeight: "3rem"}}>{selectedPlant.status}</Alert>
                         </Typography>
-                    </Grid2>
-                    <Grid2 size={12} style={{height: "fit-content"}}>
+                    </Grid>
+                    <Grid size={12} style={{height: "fit-content"}}>
                         <TableContainer 
                             style={{borderRadius: "1rem", height: "65vh",}}
                         >
@@ -381,11 +381,11 @@ const Parameter = () => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                    </Grid2>
-                </Grid2>
-            </Grid2>
-            <Grid2 container spacing={1} padding={2}>
-                <Grid2 size={{xs: 12, md: 3}} className="d-flex flex-column align-items-center justify-content-start" style={{padding: "0 4rem"}}>
+                    </Grid>
+                </Grid>
+            </Grid>
+            <Grid container spacing={1} padding={2}>
+                <Grid size={{xs: 12, md: 3}} className="d-flex flex-column align-items-center justify-content-start" style={{padding: "0 4rem"}}>
                     {ButtonList.map((item, index) => (
                         <Button
                             key={index}
@@ -409,11 +409,11 @@ const Parameter = () => {
                             {item.name}
                         </Button>
                     ))}
-                </Grid2>
-                <Grid2 size={{xs: 12, md: 9}}>
+                </Grid>
+                <Grid size={{xs: 12, md: 9}}>
                     <Chart num={num} humidity={humidity} temperature={temperature} light={light} xLabels={xLabels}/>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
             
         </LocalizationProvider>
 )
