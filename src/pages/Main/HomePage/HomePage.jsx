@@ -42,17 +42,12 @@ function TChu() {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8080/v1/auth/login",
-      {
-          email: loginEmail,
-          password: password,
-      },
-      {
-          headers: { "Content-Type": "application/json" }, 
-      }
-    );
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      const response = await api.post("/auth/login", {
+        email: loginEmail,
+        password: password,
+      });
+      console.log("Login Success:", response.data);
+
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
 

@@ -1,12 +1,9 @@
 import React, { useState,useEffect,useRef } from "react";
-import { Card, CardContent, Typography,Box, Pagination,Modal,Button, TextField, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
-import { IoCalendarOutline } from "react-icons/io5";
-import { IoIosAddCircle } from "react-icons/io";
+
 import { NavLink } from "react-router-dom";
-import { FiTool, FiTrash } from "react-icons/fi";
-import { PiNotePencilLight } from "react-icons/pi";
-import { RiTreeFill } from "react-icons/ri";
-import { FaRegClock } from "react-icons/fa6";
+import { TreeDeciduous, CalendarDays, NotebookPen, Clock, Hammer, Trash2, CirclePlus} from 'lucide-react';
+import { Card, CardContent, Typography,Box, Pagination,Modal,Button, TextField, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
+
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -280,7 +277,7 @@ const ReminderList = ({ reminders }) => {
                         }
                     }}
                 >
-                    <IoIosAddCircle style={{ marginRight: "0.6rem" }} /> Thêm lịch nhắc nhở
+                    <CirclePlus style={{ marginRight: "0.6rem" }} /> Thêm lịch nhắc nhở
                 </Button>
             </NavLink>
         </Box>
