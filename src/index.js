@@ -17,6 +17,8 @@ import Parameter from './pages/Main/Parameter/Parameter.jsx';
 import TChu from './pages/Main/HomePage/HomePage.jsx'
 import ReminderSchedule from './pages/Main/RemindPage/RPage.jsx'
 import ReminderForm from './pages/Main/AddRm/AddRm.jsx'
+import UserProfile from './pages/Main/InfoUser/InfoUser.jsx' 
+import EditProfile from './pages/Main/editProfile/editProfile.jsx' 
 
 const App = () => {
     const router = createBrowserRouter([
@@ -62,7 +64,17 @@ const App = () => {
                         {  path: 'schedule/AddRm',
                             element: <ReminderForm />,
                             handle: { title: "Thêm lịch nhắc nhở" },
-                        }
+                        },
+                        {
+                            path: 'infor-account',
+                            element: <UserProfile />,
+                            handle: { title: "Thông tin tài khoản" },
+                        },
+                        {
+                            path: 'infor-account/edit-profile',
+                            element: <EditProfile />,
+                            handle: { title: "Sửa thông tin tài khoản" },
+                        },
                     ],
                 }
             ]

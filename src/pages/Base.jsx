@@ -17,7 +17,7 @@ const Base = () => {
     
     return (
         <div className="base">
-            <Grid2 
+            <Grid2
                 container 
                 spacing={0} 
                 sx={{
@@ -25,7 +25,7 @@ const Base = () => {
                     flexDirection: { xs: "column", md: "row" } // Nhỏ thì cột, lớn thì hàng
                 }}
             >
-                <Grid2 
+                <Grid2
                     size={{ xs: 12, md: 2 }}    
                 >
                     <Sidebar />

@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid2, Box, TextField, InputAdornment, Typography } from "@mui/material";
+import { Grid, Box, TextField, InputAdornment, Typography } from "@mui/material";
 import {
     Button,
     Select,
@@ -162,12 +162,12 @@ const UpdatePlant = () => {
 
     return (
         <div className="add-plant" style={{ padding: "1rem 4rem", }}>
-            <Grid2 container spacing={10}>
-                <Grid2 sx={{xs: 6, md: 1}} >
+            <Grid container spacing={10}>
+                <Grid sx={{xs: 6, md: 1}} >
                     <PlantForm plantData = {plantData} handleChange={handleChange}/>
-                </Grid2>
-                <Grid2 sx={{xs: 6, md: 11}} container spacing={10}>
-                    <Grid2 sx={{xs: 6, md: 8}} > 
+                </Grid>
+                <Grid sx={{xs: 6, md: 11}} container spacing={10}>
+                    <Grid sx={{xs: 6, md: 8}} > 
                         <TableContainer style={{border: "1px solid black", borderRadius: "1rem", height: "65vh", width: "35vw", overflow: "auto"}} component={Paper}>
                             <Table stickyHeader>
                                 <TableHead>
@@ -208,8 +208,8 @@ const UpdatePlant = () => {
                             </Button>
                             </DialogActions>
                         </Dialog>
-                    </Grid2>
-                    <Grid2 sx={{xs: 6, md: 4}} className="d-flex flex-column align-items-center justify-content-center">
+                    </Grid>
+                    <Grid sx={{xs: 6, md: 4}} className="d-flex flex-column align-items-center justify-content-center">
                         <FormControl fullWidth style={{ marginBottom: "10px", width: "13rem" }}>
                             <Typography fontWeight="bold" style={{marginBottom: "0.3rem"}}>Thiết bị theo dõi:</Typography>
                             <Select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} size="small">
@@ -249,9 +249,9 @@ const UpdatePlant = () => {
                         >
                             <SquarePlus style = {{marginRight: "0.6rem",}}/> Thêm thiết bị
                         </Button>
-                    </Grid2>
-                </Grid2>
-            </Grid2>
+                    </Grid>
+                </Grid>
+            </Grid>
             <div className="d-flex justify-content-end align-items-center" style={{marginTop: "1rem"}}>
                 <Button 
                     variant="contained" 

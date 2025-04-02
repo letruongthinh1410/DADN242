@@ -1,5 +1,5 @@
 import './HomePage.css';
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import {Container, Row, Col, Card ,Modal } from "react-bootstrap"; 
@@ -7,7 +7,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.png";
 import image from "../../../assets/image5.png";
-import axios from "axios";
+import api from "../../../pages/api.jsx";
 
 
 function TChu() {
@@ -28,6 +28,8 @@ function TChu() {
     resetPwEmail: false,
     resetPw: false,
   });
+
+
   const handleModal = (modal, value) => {
     setModalState((prev) => ({ ...prev, [modal]: value }));
   };
@@ -53,10 +55,12 @@ function TChu() {
       localStorage.removeItem("refreshToken");
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
+
+      console.log("Access Token:", localStorage.getItem("accessToken"));
       alert("Đăng nhập thành công!");
       navigate("/plants");
     } catch (error) {
-      alert("Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.");
+      alert(error.response?.data?.message ||"Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.");
       console.error("Lỗi đăng nhập:", error.response?.data || error.message);
     }
   };
@@ -72,19 +76,72 @@ function TChu() {
         return;
       }
       try {
-        const response = await axios.post("http://localhost:8080/auth/register", {
+        await api.post("/auth/register", {
           email: registerEmail,
           username: username,
           apiKey: apiKey,
           password: password,
         });
-        
+
         alert("Đăng ký thành công! Vui lòng đăng nhập.");
       } catch (error) {
         alert("Đăng ký thất bại! Vui lòng kiểm tra lại thông tin.");
         console.error("Lỗi đăng ký:", error.response?.data || error.message);
       }
-    };
+  };
+
+//   const handleLogout = async () => {
+//     if (!token) return;
+
+//     try {
+//         await handleUnsubscribe(); // Hủy đăng ký trước khi logout
+
+//         await api.post("/auth/logout", {}, {
+//             headers: { Authorization: `Bearer ${token}` }
+//         });
+
+//         localStorage.removeItem("accessToken");
+//         localStorage.removeItem("refreshToken");
+
+//         console.log("Đã đăng xuất!");
+//         navigate("/"); // Quay về trang chủ
+//     } catch (error) {
+//         console.error("Lỗi khi logout:", error.response?.data || error.message);
+//     }
+// };
+
+  const handleSubscribe = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+      try {
+          await api.post("/mqtt/subscribe", {}, {
+              headers: { Authorization: `Bearer ${token}` }
+          });
+          console.log("Đã đăng ký nhận dữ liệu!");
+      } catch (error) {
+          console.error("Lỗi Subscribe:", error.response?.data || error.message);
+      }
+  };
+
+  // const handleUnsubscribe = async () => {
+  //   if (!token) return;
+  //   try {
+  //       await api.post("/mqtt/unsubscribe", {}, {
+  //           headers: { Authorization: `Bearer ${token}` }
+  //       });
+  //       console.log("Đã hủy đăng ký nhận dữ liệu!");
+  //   } catch (error) {
+  //       console.error("Lỗi Unsubscribe:", error.response?.data || error.message);
+  //   }
+  // };
+  const token = localStorage.getItem("accessToken");
+  useEffect(() => {
+    
+    if (token) {
+        handleSubscribe();
+    }
+  }, [token]); // Chạy lại nếu token thay đổi
+
 
 
   return (
@@ -107,8 +164,8 @@ function TChu() {
               </div>
               <p>Phần mềm giám sát cây trồng là một dự án được thực hiện dưới sự quản lý của Trường Đại học Bách Khoa - ĐHQG TPHCM. Phần mềm giúp nông dân có thể theo dõi các thông số như ánh sáng, nhiệt độ, độ ẩm đất của môi trường của cây trong nhà kính, đặt lịch theo dõi, từ đó dựa trên các thông số mà điều chỉnh cho phù hợp.</p>
               <div style={{display:"flex", gap: "10px" , marginBottom:"15px"  }}>
-                <button class="button-home"  onClick={()=>{handleModal("register",true)}} ><span class="BtText">Đăng ký</span></button>
-                <button class="button-home dn"  onClick={()=>handleModal("login",true)} style={{backgroundColor:"#0F6918"}} ><span class="BtText">Đăng nhập</span></button>
+                <button className="button-home"  onClick={()=>{handleModal("register",true)}} ><span className="BtText">Đăng ký</span></button>
+                <button className="button-home dn"  onClick={()=>handleModal("login",true)} style={{backgroundColor:"#0F6918"}} ><span className="BtText">Đăng nhập</span></button>
               </div>
               
             </Col>
