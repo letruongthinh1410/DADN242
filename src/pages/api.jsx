@@ -18,10 +18,9 @@ const refreshAccessToken = async () => {
       refreshToken 
     });
     // Lưu access token & refresh token mới vào localStorage
-    localStorage.setItem("accessToken", response.data.accessToken);
-    localStorage.setItem("refreshToken", response.data.refreshToken);
-    
-    return response.data.accessToken;
+    localStorage.setItem("accessToken", response.data.data.accessToken);
+    localStorage.setItem("refreshToken", response.data.data.refreshToken);
+    return response.data.data.accessToken;
   } catch (error) {
     console.error("Refresh token failed", error);
     throw error;
@@ -31,12 +30,13 @@ const refreshAccessToken = async () => {
 // Interceptor để thêm Access Token vào request
 api.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("accessToken");
-     if (!accessToken) {
-      console.warn("⚠️ No access token found in localStorage!");
-    }
+    let accessToken = localStorage.getItem("accessToken");
     if (accessToken) {
+      accessToken = accessToken.replace(/^Bearer\s/, ""); // Xóa "Bearer " nếu có
+      // console.log("Access Token được gửi:", accessToken);
       config.headers.Authorization = `Bearer ${accessToken}`;
+    } else {
+      console.warn("Không tìm thấy accessToken trong localStorage!");
     }
     return config;
   },

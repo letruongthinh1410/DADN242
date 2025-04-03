@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.png";
 import image from "../../../assets/image5.png";
 import api from "../../../pages/api.jsx";
+import axios from "axios";
 
 
 function TChu() {
@@ -28,7 +29,14 @@ function TChu() {
     resetPwEmail: false,
     resetPw: false,
   });
+  // let token = localStorage.getItem("accessToken");
+  const [token, setToken] = useState(() => localStorage.getItem("accessToken") || "");
 
+  useEffect(() => {
+      if (token) {
+          handleSubscribe();
+      }
+  }, [token]);
 
   const handleModal = (modal, value) => {
     setModalState((prev) => ({ ...prev, [modal]: value }));
@@ -43,13 +51,18 @@ function TChu() {
     }
     try {
       const response = await api.post("/auth/login", {
+        // const response = await axios.post("http://localhost:8080/v1/auth/login",{
         email: loginEmail,
         password: password,
+      }, {
+        headers: { "Content-Type": "application/json" } // Đảm bảo header JSON
       });
       console.log("Login Success:", response.data);
-
-      localStorage.setItem("accessToken", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
+      // localStorage.removeItem("accessToken");
+      // localStorage.removeItem("refreshToken");
+      localStorage.setItem("accessToken", response.data.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.data.refreshToken);
+      setToken(response.data.data.accessToken);
 
       console.log("Access Token:", localStorage.getItem("accessToken"));
       alert("Đăng nhập thành công!");
@@ -60,6 +73,30 @@ function TChu() {
     }
   };
 
+  const handleSubscribe = async () => {
+    if (!token) {
+      console.error("Token không hợp lệ hoặc chưa đăng nhập.");
+      return;
+    }
+    try {
+        await api.post("/api/mqtt/subscribe", {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        });
+        console.log("Đã đăng ký nhận dữ liệu!");
+    } catch (error) {
+        console.error("Lỗi Subscribe:", error.response?.data || error.message);
+    }
+  };
+
+  // useEffect(() => {
+  //   if (token) {
+  //       handleSubscribe();
+  //   }
+  // }, [token]); // Chạy lại nếu token thay đổi
+  
   const handleRegister = async (registerEmail, username, apiKey, password, confirmPassword) => {
       if (!registerEmail || !username || !apiKey || !password || !confirmPassword) {
         alert("Vui lòng nhập đầy đủ thông tin!");
@@ -105,18 +142,7 @@ function TChu() {
 //     }
 // };
 
-  const handleSubscribe = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-      try {
-          await api.post("/mqtt/subscribe", {}, {
-              headers: { Authorization: `Bearer ${token}` }
-          });
-          console.log("Đã đăng ký nhận dữ liệu!");
-      } catch (error) {
-          console.error("Lỗi Subscribe:", error.response?.data || error.message);
-      }
-  };
+
 
   // const handleUnsubscribe = async () => {
   //   if (!token) return;
@@ -129,13 +155,7 @@ function TChu() {
   //       console.error("Lỗi Unsubscribe:", error.response?.data || error.message);
   //   }
   // };
-  const token = localStorage.getItem("accessToken");
-  useEffect(() => {
-    
-    if (token) {
-        handleSubscribe();
-    }
-  }, [token]); // Chạy lại nếu token thay đổi
+
 
 
 
