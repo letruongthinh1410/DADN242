@@ -10,14 +10,14 @@ import { NavLink } from "react-router-dom";
 import { GetGroup, GetRule, DeleteGroup, DeleteFeed, DeleteRule, CreateRule, CreateFeeds, CreateGroup, GetFeedData } from "../../../api";
 
 import { useWebSocket } from "../../WebSocketProvider";
+import api from "../../../pages/api.jsx";
 
-
-const token = "..."; // token của bạn
+const token = localStorage.getItem("accessToken"); // token của bạn
 
 const PlantCard = ({ plant }) => {
 
     const [openDialog, setOpenDialog] = useState(false);
-
+    
     const originalPlant = { ...plant }
 
     const deleted = {
@@ -25,7 +25,8 @@ const PlantCard = ({ plant }) => {
         feeds: [],
         groupDeleted: false,
     }
-    
+
+
     const handleDeletePlant = async (e) => {
         //gọi API xoá cây trồng
         e.preventDefault()
@@ -34,7 +35,7 @@ const PlantCard = ({ plant }) => {
                 try {
                     await DeleteRule({
                         feedName: feedName,
-                        token: token,
+                        // token: token,
                     })
                     deleted.rules.push(feedName);
                 } catch (error) {
@@ -47,7 +48,7 @@ const PlantCard = ({ plant }) => {
                     await DeleteFeed({
                         groupName: plant.key,
                         feedName: feedName,
-                        token: token,
+                        // token: token,
                     })
                     deleted.feeds.push(feedName);
                 } catch (error) {
@@ -58,7 +59,7 @@ const PlantCard = ({ plant }) => {
             try {
                 await DeleteGroup({
                     groupName: plant.key,
-                    token: token,
+                    // token: token,
                 })
                 deleted.group = true;
             } catch (error) {
@@ -81,7 +82,7 @@ const PlantCard = ({ plant }) => {
                             feedName: plant.fan.key,
                             feedFloor: 0,
                             feedCeiling: 1,
-                            token
+                            // token
                         };
                     }
                 
@@ -92,7 +93,7 @@ const PlantCard = ({ plant }) => {
                                 feedName: feedKey,
                                 feedFloor: plant[type].floor,
                                 feedCeiling: plant[type].ceiling,
-                                token
+                                // token
                             };
                         }
                     }
@@ -109,7 +110,7 @@ const PlantCard = ({ plant }) => {
                                 outputFeedBelow: plant[type].outputFeedBelow,
                                 aboveValue: plant[type].aboveValue,
                                 belowValue: plant[type].belowValue,
-                                token: token,
+                                // token: token,
                             };
                         }
                     }
@@ -126,7 +127,7 @@ const PlantCard = ({ plant }) => {
                 }
             
                 if (deleted.groupDeleted) {
-                    await CreateGroup({ groupName: originalPlant.key, token });
+                    await CreateGroup({ groupName: originalPlant.key });
                 }
             }
 
@@ -340,13 +341,25 @@ const PlantList = ({ plants }) => {
 
 const Home = () => {
     const { deviceData, initWebSockets, checkConnect } = useWebSocket()
-
     const [plants, setPlants] = useState([])
-
+    const [userInfo, setUserInfo] = useState(null);
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+          try {
+            const response = await api.get("/user/info");
+            console.log("Thông tin người dùng:", response.data.data);
+            setUserInfo(response.data.data);
+          } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+          }
+        };
+        fetchUserInfo();
+    }, []);
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const groupResponse = await GetGroup({ token });
+                const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 // lấy dữ liệu của plant (bật websocket và lấy deviceData)
                 
@@ -365,11 +378,12 @@ const Home = () => {
                     
                     await Promise.all(
                         group.feeds.map(async (feed) => {
-                            if(!checkConnect(feed.key)) initWebSockets([feed.key], token) //bật WebSocket lên cho feed này
+                            if(!checkConnect(feed.key)) initWebSockets([feed.key],token) //bật WebSocket lên cho feed này
 
                             const resData = await GetFeedData({
-                                username: "...", // username tạm
+                                username: userInfo.username, // username tạm
                                 feedKey: feed.key,
+                                apiKey: userInfo.apiKey,
                             });
 
                             if (feed.name === "fan") {
@@ -410,7 +424,7 @@ const Home = () => {
                                 try {
                                     const ruleRes = await GetRule({
                                         feedName: feed.key,
-                                        token,
+                                        // token,
                                     });
                                     const ruleData = ruleRes.data[0];
                                         

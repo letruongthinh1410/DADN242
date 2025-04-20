@@ -9,7 +9,7 @@ import Blank from './pages/Blank.jsx'
 import Error from './pages/Error.jsx'
 
 import Base from './pages/Base.jsx';
-import Plants from './pages/Main/Plants/Plants.jsx';
+import Home from './pages/Main/Home/Home.jsx';
 
 import AddPlant from './pages/Main/AddPlant/AddPlant.jsx';
 import UpdatePlant from './pages/Main/UpdatePlan/UpdatePlant.jsx';
@@ -20,6 +20,7 @@ import ReminderForm from './pages/Main/AddRm/AddRm.jsx'
 import UserProfile from './pages/Main/InfoUser/InfoUser.jsx' 
 import EditProfile from './pages/Main/editProfile/editProfile.jsx' 
 import { Navigate } from "react-router-dom";
+import { WebSocketProvider } from './pages/WebSocketProvider.jsx';
 
 const App = () => {
     const router = createBrowserRouter([
@@ -43,7 +44,7 @@ const App = () => {
                     children: [
                         {
                             path: 'plants',
-                            element: <Plants />,
+                            element: <Home />,
                             handle: { title: "Danh sách cây trồng" },
                         },
                         {
@@ -88,7 +89,9 @@ const App = () => {
     
     return (
         <HelmetProvider>
-            <RouterProvider router={router} />
+            <WebSocketProvider>
+                <RouterProvider router={router} />
+            </WebSocketProvider>
         </HelmetProvider>
     )
 }

@@ -412,7 +412,7 @@ const ReminderList = ({ reminders,plants,feeds,onRefresh}) => {
         if (page > newTotalPages) {
             setPage(newTotalPages || 1); // fallback về 1 nếu không có reminder nào
         }
-    }, [reminders]);
+    }, [reminders,page]);
     return (
         <Box sx={{ display: "flex", flexDirection: "column", minHeight: "80vh" }}>
             {/* Nếu không có reminders */}
