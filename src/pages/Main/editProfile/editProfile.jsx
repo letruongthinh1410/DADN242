@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Form, Button, InputGroup } from "react-bootstrap";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import avatar from "../../../assets/jack.jpg";
+import avatar from "../../../assets/user-info.jpg";
 import { FiSave, FiArrowLeft } from "react-icons/fi";
 import api from "../../../pages/api.jsx";
 

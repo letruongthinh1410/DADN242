@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Container, Row, Col, Card, Form, Button, InputGroup,Spinner } from "react-bootstrap";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import avatar from "../../../assets/jack.jpg";
+import avatar from "../../../assets/user-info.jpg";
 import "../InfoUser/InfoUser.css";
 import { FiTool } from "react-icons/fi";
 import { useEffect } from "react";
@@ -40,8 +40,11 @@ const UserProfile = () => {
   }
 
   // Tính số thiết bị (feed) và số cây trồng (group)
-  const totalDevices = userInfo.groups.reduce((acc, group) => acc + group.feeds.length, 0);
-  const totalGroups = userInfo.groups.length;
+  const totalDevices = userInfo.groups
+    .filter(group => group.key !== "default")
+    .reduce((acc, group) => acc + group.feeds.length, 0);
+  const totalGroups = userInfo.groups.filter(group => group.key !== "default").length;
+  
 
   return (
     <Container fluid className="d-flex justify-content-center align-items-center">

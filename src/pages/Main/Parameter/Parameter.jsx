@@ -98,19 +98,7 @@ const Parameter = () => {
     const [selectedPlant, setSelectedPlant] = React.useState(plant);
     
     const { deviceData, deviceHistory, sendToDevice, initWebSockets, checkConnect} = useWebSocket()
-    const [userInfo, setUserInfo] = useState(null);
-    useEffect(() => {
-            const fetchUserInfo = async () => {
-              try {
-                const response = await api.get("/user/info");
-                console.log("Thông tin người dùng:", response.data.data);
-                setUserInfo(response.data.data);
-              } catch (error) {
-                console.error("Lỗi khi lấy thông tin người dùng:", error);
-              }
-            };
-            fetchUserInfo();
-    }, []);
+    
     useEffect(() => {
         const fetchPlants = async () => {
             try {
@@ -133,11 +121,14 @@ const Parameter = () => {
                         group.feeds.map(async (feed) => {
                             if(!checkConnect(feed.key)) initWebSockets([feed.key], token) //bật WebSocket lên cho feed này
                             
+                            const response = await api.get("/user/info");
+
                             const resData = await GetFeedData({
-                                username: userInfo.username, // username tạm
+                                username: response.data.data.username, // username tạm
                                 feedKey: feed.key,
-                                apiKey: userInfo.apiKey,
+                                apiKey: response.data.data.apikey,
                             });
+
 
                             if (feed.name === "fan") {
                                 const values = Array.isArray(resData)

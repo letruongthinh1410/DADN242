@@ -1,34 +1,69 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import "./Profile.css";
 
-import { Avatar, Menu, MenuItem, Box } from '@mui/material';
+import { Menu, MenuItem, Box, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
-import Jack from "../../../assets/jack.jpg"; //xài tạm
+import { CircleUser, LogOut, ChevronDown, CircleUserRound } from "lucide-react";
 
-import { CircleUser, LogOut, ChevronDown } from "lucide-react";
+import { Unsubcribe, Logout } from "../../../api";
+import { useWebSocket } from "../../WebSocketProvider";
+import CircularProgress from "@mui/material/CircularProgress";
+import api from "../../api";
 const Profile = () => {
+    const { closeAll } = useWebSocket()
+    const navigate = useNavigate()
+
     const [anchorEl, setAnchorEl] = useState(null); 
+    const [openDialog, setOpenDialog] = useState(false);
+
+    const [username, setUsername] = useState("")
 
     const handleOpenList = (event) => {
         setAnchorEl(anchorEl ? null : event.currentTarget); 
     }
 
-    const handleLogOut = async () => {
+    const [loadingLogout, setLoadingLogout] = useState(false);
 
-    }
+    const handleConfirmLogout = async () => {
+        setLoadingLogout(true);
+        try {
+            closeAll();
+            await Unsubcribe();
+            await Logout();
+            navigate("/");
+        } catch (error) {
+            console.error("Đăng xuất thất bại: ", error);
+        } finally {
+            setLoadingLogout(false);
+            setOpenDialog(false);
+        }
+    };
+
+    const handleLogOutClick = () => {
+        setAnchorEl(null);
+        setOpenDialog(true);
+    };
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+          try {
+            const response = await api.get("/user/info");
+            setUsername(response.data.data.username);
+          } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+          }
+        };
+        fetchUserInfo();
+    }, []);
     return (
         <div className="profile_list ">
             <div className= "profile d-flex align-items-center justify-content-between" onClick={handleOpenList} >
                 <div className="profile_avatar d-flex align-items-center justify-content-between">
-                    <Avatar 
-                        alt="Tuan" 
-                        src={Jack}
-                        sx={{ width: 30, height: 30 }}
-                    />
-                    <div className="profile_name">Tuan</div>
+                    <CircleUserRound />
+                    <div className="profile_name">{username}</div>
                 </div>
                 <ChevronDown className="arrow_down"/>  
             </div>
@@ -46,12 +81,34 @@ const Profile = () => {
                         <CircleUser size={20} style={{marginRight: "0.5rem"}}/> Thông tin tài khoản
                     </NavLink>
                 </MenuItem>
-                <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Box className="text-danger text-decoration-none" onClick={handleLogOut}>
-                        <LogOut size={20} style={{marginRight: "0.5rem"}}/> Đăng xuất
+                <MenuItem onClick={() => {
+                    setAnchorEl(null);
+                    setOpenDialog(true); // mở dialog
+                }}>
+                    <Box className="text-danger text-decoration-none">
+                        <LogOut size={20} style={{ marginRight: "0.5rem" }} /> Đăng xuất
                     </Box>
                 </MenuItem>
+
             </Menu>
+
+            <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+                <DialogTitle>Xác nhận đăng xuất</DialogTitle>
+                <DialogContent>Bạn có chắc chắn muốn đăng xuất không?</DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDialog(false)} color="primary">
+                        Huỷ
+                    </Button>
+                    <Button
+                        onClick={handleConfirmLogout}
+                        color="error"
+                        variant="contained"
+                        disabled={loadingLogout}
+                    >
+                        {loadingLogout ? <CircularProgress size={20} color="inherit" /> : "Đăng xuất"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     )
 }

@@ -32,6 +32,20 @@ export const Login = async ({ loginEmail, password }) => {
     return res.data;
   };
 
+  export const Unsubcribe = async () => {
+    const res = await api.post("/api/mqtt/unsubscribe", {}, {
+        headers: { "Content-Type": "application/json" },
+    });
+    return res.data
+  }
+
+  export const Logout = async () => {
+    const res = await api.post("/auth/logout", {}, {
+        headers: { "Content-Type": "application/json" },
+    })
+    return res.data
+  }
+
 //-----------------Plants------------------
 //----Create Group (CreateTree)
 export const CreateGroup = async ({ groupName }) => {

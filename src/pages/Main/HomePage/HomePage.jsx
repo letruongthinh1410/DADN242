@@ -1,8 +1,8 @@
 import './HomePage.css';
-import { useState,useEffect } from "react";
+import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import {Container, Row, Col, Card ,Modal,Spinner } from "react-bootstrap"; 
+import { Container, Row, Col, Card , Modal, Spinner } from "react-bootstrap"; 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.png";
