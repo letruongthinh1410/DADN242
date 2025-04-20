@@ -1,8 +1,8 @@
+version: '3.8'
 
 services:
   redis:
     image: redis:7.0.15
-    container_name: redis
     restart: always
     ports:
       - "6379:6379"
@@ -10,7 +10,7 @@ services:
       - app-network
 
   spring-app:
-    image: brookvita3/qlnk-app:1.6
+    image: brookvita3/qlnk-app:1.6.2
     container_name: spring_app
     restart: always
     ports:
