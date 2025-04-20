@@ -19,11 +19,16 @@ import ReminderSchedule from './pages/Main/RemindPage/RPage.jsx'
 import ReminderForm from './pages/Main/AddRm/AddRm.jsx'
 import UserProfile from './pages/Main/InfoUser/InfoUser.jsx' 
 import EditProfile from './pages/Main/editProfile/editProfile.jsx' 
+import { Navigate } from "react-router-dom";
 
 const App = () => {
     const router = createBrowserRouter([
         {
             path: '/',
+            element: <Navigate to="/home" replace />  
+        },
+        {
+            path: '/home',
             element: <TChu/>,
             errorElement: <Error />,
         },

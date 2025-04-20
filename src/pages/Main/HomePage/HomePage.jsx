@@ -2,14 +2,14 @@ import './HomePage.css';
 import { useState,useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import {Container, Row, Col, Card ,Modal } from "react-bootstrap"; 
+import {Container, Row, Col, Card ,Modal,Spinner } from "react-bootstrap"; 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.png";
 import image from "../../../assets/image5.png";
 import api from "../../../pages/api.jsx";
-import axios from "axios";
-
+// import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 function TChu() {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,146 +21,173 @@ function TChu() {
   const [password, setPassword] = useState("");
   const [PasswordRegister, setPasswordRegister] = useState("");
   const [RPasswordRegister, setRPasswordRegister] = useState("");
-  const [PasswordRs, setPasswordRs] = useState("");
-  const [RPasswordRs, setRPasswordRs] = useState("");
   const [modalState, setModalState] = useState({  
     login: false,
     register: false,
     resetPwEmail: false,
     resetPw: false,
   });
-  // let token = localStorage.getItem("accessToken");
-  const [token, setToken] = useState(() => localStorage.getItem("accessToken") || "");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerUsername, setRegisterUsername] = useState("");
+  const [registerApiKey, setRegisterApiKey] = useState("");
+  // usestate của rspw
+  const [rsEmail,setRsEmail] = useState("");
+  const [rsToken,setRsToken] = useState("");
+  const [PasswordRs, setPasswordRs] = useState("");
+  const [RPasswordRs, setRPasswordRs] = useState("");
 
-  useEffect(() => {
-      if (token) {
-          handleSubscribe();
-      }
-  }, [token]);
+  // let token = localStorage.getItem("accessToken");
+  let [token, setToken] = useState(() => localStorage.getItem("accessToken") || "");
+  const navigate = useNavigate(); 
+  const [loading, setLoading] = useState(false);
+  const isTokenExpired = (token) => {
+    try {
+      const decoded = jwtDecode(token);
+      return decoded.exp * 1000 < Date.now(); // true nếu đã hết hạn
+    } catch (e) {
+      return true;
+    }
+  };
 
   const handleModal = (modal, value) => {
     setModalState((prev) => ({ ...prev, [modal]: value }));
   };
-  const navigate = useNavigate(); 
-
+  const clearTokens = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  };
+  
   const handleLogin = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (token && isTokenExpired(token)) {
+      localStorage.removeItem("accessToken");
+      return;
+    }
     console.log(loginEmail , password);
+   
+    console.log("Token đã được xóa khỏi localStorage.");
     if (loginEmail.trim() === "" || password.trim() === "") {
       alert("Vui lòng nhập đầy đủ email và mật khẩu!");
       return;
     }
+    setLoading(true);
     try {
+      clearTokens();
       const response = await api.post("/auth/login", {
-        // const response = await axios.post("http://localhost:8080/v1/auth/login",{
         email: loginEmail,
         password: password,
       }, {
         headers: { "Content-Type": "application/json" } // Đảm bảo header JSON
       });
       console.log("Login Success:", response.data);
-      // localStorage.removeItem("accessToken");
-      // localStorage.removeItem("refreshToken");
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       setToken(response.data.data.accessToken);
 
       console.log("Access Token:", localStorage.getItem("accessToken"));
+      console.log("Refresh Token:", localStorage.getItem("refreshToken"));
       alert("Đăng nhập thành công!");
       navigate("/plants");
     } catch (error) {
       alert(error.response?.data?.message ||"Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.");
       console.error("Lỗi đăng nhập:", error.response?.data || error.message);
     }
-  };
-
-  const handleSubscribe = async () => {
-    if (!token) {
-      console.error("Token không hợp lệ hoặc chưa đăng nhập.");
-      return;
-    }
-    try {
-        await api.post("/api/mqtt/subscribe", {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-        },
-        });
-        console.log("Đã đăng ký nhận dữ liệu!");
-    } catch (error) {
-        console.error("Lỗi Subscribe:", error.response?.data || error.message);
+    finally {
+      setLoading(false); // Set loading to false after the operation ends
     }
   };
 
-  // useEffect(() => {
-  //   if (token) {
-  //       handleSubscribe();
-  //   }
-  // }, [token]); // Chạy lại nếu token thay đổi
-  
-  const handleRegister = async (registerEmail, username, apiKey, password, confirmPassword) => {
-      if (!registerEmail || !username || !apiKey || !password || !confirmPassword) {
+  const handleRegister = async () => {
+    console.log(registerEmail , registerUsername , registerApiKey , PasswordRegister , RPasswordRegister);
+      if (!registerEmail || !registerUsername || !registerApiKey || !PasswordRegister || !RPasswordRegister) {
         alert("Vui lòng nhập đầy đủ thông tin!");
         return;
       }
       
-      if (password !== confirmPassword) {
+      if (PasswordRegister !== RPasswordRegister) {
         alert("Mật khẩu nhập lại không khớp!");
         return;
       }
+      setLoading(true); // Set loading to true when starting registration
       try {
         await api.post("/auth/register", {
           email: registerEmail,
-          username: username,
-          apiKey: apiKey,
-          password: password,
+          username: registerUsername,
+          apikey: registerApiKey,
+          password: PasswordRegister,
+        }, {
+          headers: { "Content-Type": "application/json" } // Đảm bảo header JSON
         });
 
         alert("Đăng ký thành công! Vui lòng đăng nhập.");
+        // navigate("/"); // Chuyển hướng về trang chủ sau khi đăng ký thành công
+        handleModal("register", false); // Đóng modal đăng ký
+        handleModal("login", true); // Mở modal đăng nhập
+        
       } catch (error) {
         alert("Đăng ký thất bại! Vui lòng kiểm tra lại thông tin.");
         console.error("Lỗi đăng ký:", error.response?.data || error.message);
       }
+      finally {
+        setLoading(false); // Set loading to false after the operation ends
+      }
+    
   };
 
-//   const handleLogout = async () => {
-//     if (!token) return;
+  const handleForgotPassword = async () => {
+    setLoading(true); // Set loading to true when starting password reset request
+    try {
+      const res = await api.post("/user/forgot-password", {
+        email: rsEmail,
+      });
+      alert("Đã gửi token về email của bạn");  // Thành công
+      handleModal("resetPw",true) ; 
+      handleModal("resetPwEmail",false);
+    } catch (error) {
+      console.error(error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);  
+      } else {
+        alert("Gửi email thất bại!"); 
+      }
+    }
+    finally {
+      setLoading(false); // Set loading to false after the operation ends
+    }
+  };
 
-//     try {
-//         await handleUnsubscribe(); // Hủy đăng ký trước khi logout
-
-//         await api.post("/auth/logout", {}, {
-//             headers: { Authorization: `Bearer ${token}` }
-//         });
-
-//         localStorage.removeItem("accessToken");
-//         localStorage.removeItem("refreshToken");
-
-//         console.log("Đã đăng xuất!");
-//         navigate("/"); // Quay về trang chủ
-//     } catch (error) {
-//         console.error("Lỗi khi logout:", error.response?.data || error.message);
-//     }
-// };
-
-
-
-  // const handleUnsubscribe = async () => {
-  //   if (!token) return;
-  //   try {
-  //       await api.post("/mqtt/unsubscribe", {}, {
-  //           headers: { Authorization: `Bearer ${token}` }
-  //       });
-  //       console.log("Đã hủy đăng ký nhận dữ liệu!");
-  //   } catch (error) {
-  //       console.error("Lỗi Unsubscribe:", error.response?.data || error.message);
-  //   }
-  // };
-
-
-
+  const handleResetPassword = async () => {
+    setLoading(true); // Set loading to true when starting reset password
+    try {
+      if(PasswordRs !== RPasswordRs){
+        alert("Mật khẩu nhập lại không khớp!");
+        return;
+      }
+      const res = await api.post("/user/reset-password", {
+        token: rsToken,
+        newPassword: PasswordRs,
+      });
+      alert(res.data.message || "Đặt lại mật khẩu thành công!");
+      handleModal("resetPw", false);
+      setRsToken("");
+      setPasswordRs("");
+      setRPasswordRs("");
+    } catch (error) {
+      console.error(error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message); // báo lỗi từ BE
+      } else {
+        alert("Đặt lại mật khẩu thất bại!");
+      }
+    }
+    finally {
+      setLoading(false); // Set loading to false after the operation ends
+    }
+  };
 
   return (
     <div className="home-page">
+
       <div className="header-section">
         <Container>
           <Row className="align-items-center">
@@ -232,13 +259,15 @@ function TChu() {
         </p>
       </div>
 
-      
       {/* ---------------------Login------------------------ */}
+
       <Modal show ={modalState.login}  onHide={() => handleModal("login", false)} size='lg' centered dialogClassName="custom-modal" >
+
         <Modal.Header closeButton style={{ borderBottom: "none" , paddingBottom:"0"}} >
         </Modal.Header>
 
         <Modal.Body className = "custom-modal-body"  >
+ 
         <div className = "login container">
           <div className = "login row">
             <div className = "login-logo col">
@@ -248,8 +277,17 @@ function TChu() {
                 <h4>Giám sát cây trồng</h4>
               
             </div>
-
+            
             <div className = "login-content col-lg-6 col-12"  >
+              {loading ? (
+                <Container className="d-flex flex-column justify-content-center align-items-center" style={{ height: "35vh" }}>
+                <Spinner animation="border" variant="success" />
+                <div style={{ marginTop: "15px", fontSize: "1rem", color: "#487853" }}>
+                  Đang đăng nhập...
+                </div>
+                </Container>
+                ) : (
+                <>
               <h3>Đăng nhập</h3>
               <div className="mb-3">
                 <label>Email:</label>
@@ -286,8 +324,11 @@ function TChu() {
                 <button className="button-33"  onClick={() => {handleModal("login", false); handleModal("register", true); }} >Tạo tài khoản</button>
                 <button className="button-33" onClick={handleLogin} >Đăng nhập</button>
               </div>
+              </>
+              )}
               
             </div>
+
           </div>
         </div>
         </Modal.Body>
@@ -296,6 +337,7 @@ function TChu() {
 
       {/* ---------------------Register------------------------ */}
       <Modal show ={modalState.register} onHide={()=>{handleModal("register",false)}} size='lg' centered dialogClassName="custom-modal" >
+
         <Modal.Header closeButton style={{ borderBottom: "none" , paddingBottom:"0"}} >
         </Modal.Header>
         <Modal.Body className="custom-modal-body">
@@ -310,18 +352,27 @@ function TChu() {
               </div>
 
               <div className="register-content col-lg-6 col-12">
+                {loading ? (
+                <Container className="d-flex flex-column justify-content-center align-items-center" style={{ height: "40vh" }}>
+                <Spinner animation="border" variant="success" />
+                <div style={{ marginTop: "15px", fontSize: "1rem", color: "#487853" }}>
+                  Đang đăng kí...
+                </div>
+                </Container>
+                ) : (
+                <>
                 <h3>Đăng ký</h3>
                 <div className="mb-3">
                   <label>Email:</label>
-                  <input type="email" className="form-control" placeholder="Nhập email" />
+                  <input type="email" className="form-control" placeholder="Nhập email"  value={registerEmail}  onChange={(e) => setRegisterEmail(e.target.value)} />
                 </div>
                 <div className="mb-3">
                   <label>Adafruit username:</label>
-                  <input type="text" className="form-control" placeholder="Username" />
+                  <input type="text" className="form-control" placeholder="Username" value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} />
                 </div>
                 <div className="mb-3">
                   <label>Adafruit API key:</label>
-                  <input type="text" className="form-control" placeholder="Nhập API key" />
+                  <input type="text" className="form-control" placeholder="Nhập API key" value={registerApiKey}  onChange={(e) => setRegisterApiKey(e.target.value)}/>
                 </div>
                 <div className="mb-3">
                   <label>Mật khẩu:</label>
@@ -363,6 +414,8 @@ function TChu() {
                 <p style={{ marginTop: "10px" }}>
                   Đã có tài khoản? <span onClick={() => { handleModal("login",true); handleModal("register",false); }} style={{ fontWeight: "bold", cursor: "pointer" }}>Đăng nhập</span>
                 </p>
+                </>
+                )}
               </div>
             </div>
           </div>
@@ -385,20 +438,32 @@ function TChu() {
             </div>
 
             <div className = "login-content col-lg-6 col-12"  >
+            {loading ? (
+                  <Container className="d-flex flex-column justify-content-center align-items-center" style={{ height: "20vh" }}>
+                  <Spinner animation="border" variant="success" />
+                  <div style={{ marginTop: "15px", fontSize: "1rem", color: "#487853" }}>
+                    Đang check và gửi token về email...
+                  </div>
+                </Container>
+              ) : (
+                <>
               <h3>Đặt lại mật khẩu</h3>
-              <div className="mb-3">
+              <div className="mb-3" >
                 <label>Email:</label>
-                <input type="email" className="form-control" placeholder="Nhập email" />
+                <input type="email" className="form-control" placeholder="Nhập email" value={rsEmail} onChange={(e)=>setRsEmail(e.target.value)}/>
               </div>
               <div className="button-group-forget"> 
-                <button className="button-33"  onClick={() => {handleModal("resetPw",true) ; handleModal("resetPwEmail",false)}} >Xác nhận</button>
+                <button className="button-33"  onClick={() => {handleForgotPassword();}} >Xác nhận</button>
               </div>
-              
+                </>
+              )}
             </div>
+             
           </div>
         </div>
         </Modal.Body>
       </Modal>   
+
           {/* ---------------------Reset Password/email------------------------ */}
       <Modal show ={modalState.resetPw} onHide={()=>handleModal("resetPw",false)} size='lg' centered dialogClassName="custom-modal">
         <Modal.Header closeButton style={{ borderBottom: "none" , paddingBottom:"0"}} >
@@ -414,9 +479,22 @@ function TChu() {
               <h4>Giám sát cây trồng</h4>
             </div>
             <div className = "register-content col-lg-6 col-12"  >
+            {loading ? (
+                  <Container className="d-flex flex-column justify-content-center align-items-center" style={{ height: "40vh" }}>
+                  <Spinner animation="border" variant="success" />
+                  <div style={{ marginTop: "15px", fontSize: "1rem", color: "#487853" }}>
+                    Đang lưu mật khẩu mới...
+                  </div>
+                </Container>
+              ) : (
+              <>
               <h3>Đặt lại mật khẩu</h3>
+              <div className="mb-3">
+                <label>TOKEN:</label>
+                <input type="token" className="form-control" placeholder="Nhập token đã gửi vào email" value={rsToken} onChange={(e) => setRsToken(e.target.value)}/>
+              </div>
                 <div className="mb-3">
-                  <label>Mật khẩu:</label>
+                  <label>Mật khẩu mới:</label>
                   <div className="password-input">
                     <input 
                     type={showPasswordRs ? "text" : "password"} 
@@ -434,7 +512,7 @@ function TChu() {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label>Nhập lại mật khẩu:</label>
+                  <label>Nhập lại mật khẩu mới:</label>
                   <div className="password-input">
                     <input 
                     type={showRPasswordRs ? "text" : "password"}
@@ -451,16 +529,17 @@ function TChu() {
                 </div>
                 
               <div className="button-group-forget"> 
-                <button className="button-33" >Xác nhận</button>
+                <button className="button-33" onClick={handleResetPassword} >Xác nhận</button>
               </div>
-              
+              </>
+              )}
             </div>
           </div>
         </div>
         </Modal.Body>
       </Modal> 
+
     </div>
-     
   );
 }
 

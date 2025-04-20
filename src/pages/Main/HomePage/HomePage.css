@@ -188,7 +188,7 @@ label {
 .toggle-password-rs1 {
   position: absolute;
   right: 60px;
-  top: 42%;
+  top: 53%;
   transform: translateY(-50%);
   cursor: pointer;
   color : black ;
@@ -196,7 +196,7 @@ label {
 .toggle-password-rs2 {
   position: absolute;
   right: 60px;
-  top: 67%;
+  top: 73%;
   transform: translateY(-50%);
   cursor: pointer;
   color : black ;
@@ -363,7 +363,7 @@ label {
   .toggle-password-rs1 {
     position: absolute;
     right: 60px;
-    top: 64.7%;
+    top: 69.5%;
     transform: translateY(-50%);
     cursor: pointer;
     color : black ;
@@ -371,7 +371,7 @@ label {
   .toggle-password-rs2 {
     position: absolute;
     right: 60px;
-    top: 80%;
+    top: 83%;
     transform: translateY(-50%);
     cursor: pointer;
     color : black ;
