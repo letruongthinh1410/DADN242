@@ -1,0 +1,439 @@
+.App {
+  text-align: center;
+}
+
+.custom-modal .modal-content {
+  background: linear-gradient(135deg, #f3f3f3, #6acc68);
+  border-radius: 10px; /* Bo góc đẹp hơn */
+  color: white; /* Để chữ nổi bật hơn */
+}
+
+.home-page {
+  font-family: Arial, sans-serif;
+}
+.text{
+  color: #00FF00;
+}
+.header-section {
+  background-image: url("../../../assets/bg1.png");
+  background-repeat: no-repeat;  
+  background-size: 100% 100%;
+  padding: 80px 0;
+
+}
+
+.logo-img {
+  width: 90px;
+}
+.logo{
+  display: flex;
+  align-items: center;
+  margin-bottom: 0px;
+
+}
+
+.header-img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.service-card {
+  text-align: center;
+  padding: 20px;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.service-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.footer {
+  margin-top: 50px;
+}
+.service-card.card{
+  margin-bottom: 10px;
+}
+/* --------------------------LOGIN--------------------- */
+.login-logo.col .logo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.login-logo.col .logo img{
+  width: 200px;
+  height: 200px;
+}
+
+.login-logo{
+  display: flex;
+}
+
+
+.login-logo h4{
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  color : #0F6918;
+  font-weight : bold;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 60px;
+  top: 57%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color : black ;
+}
+input[type="password"]::-ms-reveal,
+input[type="password"]::-webkit-contacts-auto-fill-button {
+  display: none;
+}
+
+.custom-modal-body {
+  padding: 16px;
+  padding-bottom: 20px;
+    
+  
+}
+.forgot-password {
+  text-align: right;
+  display: block;
+  font-size: 15px;
+ 
+  margin-top: 5px;
+  color: white;
+  cursor: pointer;
+}
+label {
+  font-weight: 500;
+}
+.login-content {
+  background: linear-gradient(0deg, #29D925, #11890F);
+  padding: 30px !important;;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  color: white; 
+}
+
+/* --------------------------REGISTER--------------------- */
+
+.register-logo.col .logo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.register-logo.col .logo img{
+  width: 200px;
+  height: 200px;
+}
+
+.register-logo{
+  display: flex;
+}
+
+.register-logo h4{
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  color : #0F6918;
+  font-weight : bold;
+}
+
+
+.register-content {
+  background: linear-gradient(0deg, #29D925, #11890F);
+  padding: 30px !important ;
+  padding-bottom : 10px !important;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  color: white; 
+}
+.button-33.Regis{
+  width: 50%;
+}
+.register-logo.col{
+  margin-bottom: 20px;
+}
+.toggle-password-r1 {
+  position: absolute;
+  right: 60px;
+  top: 61%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color : black ;
+}
+.toggle-password-r2 {
+  position: absolute;
+  right: 60px;
+  top: 74%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color : black ;
+}
+
+/* -----------------------Quên mật khẩu--------------------- */
+.button-group-forget{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: end;
+}
+.toggle-password-rs1 {
+  position: absolute;
+  right: 60px;
+  top: 42%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color : black ;
+}
+.toggle-password-rs2 {
+  position: absolute;
+  right: 60px;
+  top: 67%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color : black ;
+}
+
+
+
+/* -------------------button login--------------------- */
+.button-group-login{
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+.button-33 {
+  background-color: #c2fbd7;
+  border-radius: 100px;
+  box-shadow: rgba(44, 187, 99, .2) 0 -25px 18px -14px inset,rgba(44, 187, 99, .15) 0 1px 2px,rgba(44, 187, 99, .15) 0 2px 4px,rgba(44, 187, 99, .15) 0 4px 8px,rgba(44, 187, 99, .15) 0 8px 16px,rgba(44, 187, 99, .15) 0 16px 32px;
+  color: green;
+  cursor: pointer;
+  display: inline-block;
+  font-family: CerebriSans-Regular,-apple-system,system-ui,Roboto,sans-serif;
+  padding: 7px 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 250ms;
+  border: 0;
+  font-size: 16px;
+  font-weight: 500;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-33:hover {
+  box-shadow: rgba(24, 166, 2, 0.35) 0 -25px 18px -14px inset,rgba(44,187,99,.25) 0 1px 2px,rgba(44,187,99,.25) 0 2px 4px,rgba(44,187,99,.25) 0 4px 8px,rgba(44,187,99,.25) 0 8px 16px,rgba(44,187,99,.25) 0 16px 32px;
+  transform: scale(1.05) rotate(-1deg);
+}
+/* -------------------button home--------------------- */
+
+
+
+/* CSS */
+.button-home {
+  appearance: none;
+  background-color: #00FF00;
+  border-width: 0;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0;
+  line-height: 1em;
+  margin: 0;
+  opacity: 1;
+  outline: 0;
+  padding: 10px 18px;
+  position: relative;
+  text-align: center;
+  text-rendering: geometricprecision;
+  /* text-transform: uppercase; */
+  transition: opacity 300ms cubic-bezier(.694, 0, 0.335, 1),background-color 100ms cubic-bezier(.694, 0, 0.335, 1),color 100ms cubic-bezier(.694, 0, 0.335, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: baseline;
+  white-space: nowrap;
+ border-radius: 6px;
+}
+
+.button-home:before {
+  animation: opacityFallbackOut .5s step-end forwards;
+  backface-visibility: hidden;
+  background-color: #278405;
+  color : black;
+  clip-path: polygon(-1% 0, 0 0, -25% 100%, -1% 100%);
+  content: "";
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform: translateZ(0);
+  transition: clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1), -webkit-clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1);
+  width: 100%;
+  border-radius: 6px;
+}
+
+.button-home:hover:before {
+  animation: opacityFallbackIn 0s step-start forwards;
+  clip-path: polygon(0 0, 101% 0, 101% 101%, 0 101%);
+}
+
+.button-home:after {
+  background-color: #120505;
+  border-radius: 6px;
+}
+
+.button-home span {
+  z-index: 1;
+  position: relative;
+}
+.button-home.dn:before {
+  animation: opacityFallbackOut .5s step-end forwards;
+  backface-visibility: hidden;
+  background-color: #37f137;
+  color : black;
+  clip-path: polygon(-1% 0, 0 0, -25% 100%, -1% 100%);
+  content: "";
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform: translateZ(0);
+  transition: clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1), -webkit-clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1);
+  width: 100%;
+  border-radius: 6px;
+}
+.button-home.dn:hover:before {
+  animation: opacityFallbackIn 0s step-start forwards;
+  clip-path: polygon(0 0, 101% 0, 101% 101%, 0 101%);
+}
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 990px) {
+  .modal-header-custom {
+    padding: 0 !important;
+    border-bottom: none;
+  }
+  .toggle-password {
+    position: absolute;
+    right: 54px;
+    top: 73.5%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }
+  .toggle-password-r1 {
+    position: absolute;
+    right: 60px;
+    top: 70.8%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }
+  .toggle-password-r2 {
+    position: absolute;
+    right: 60px;
+    top: 80.5%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }  
+  .toggle-password-rs1 {
+    position: absolute;
+    right: 60px;
+    top: 64.7%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }
+  .toggle-password-rs2 {
+    position: absolute;
+    right: 60px;
+    top: 80%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }
+  .login-logo.col {
+    margin-bottom: 20px;
+  }
+  .login.row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .login-content {
+    width: 100%;
+    padding: 20px !important;
+  }
+
+  .button-33 {
+    width: 40%;
+  }
+  .custom-modal-body {
+    padding: 16px;
+    padding-top: 0px !important;
+  }
+}
+
+@media (max-width: 440px) {
+  .toggle-password {
+    position: absolute;
+    right: 50px;
+    top:67.5%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }
+  .toggle-password-r1 {
+    position: absolute;
+    right: 60px;
+    top: 70.8%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }
+  .toggle-password-r2 {
+    position: absolute;
+    right: 60px;
+    top: 80.5%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color : black ;
+  }  
+  .button-group-login {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .button-33 {
+    width: 90%;
+  }
+  .button-group-forget .button-33{
+    width: auto;
+  }
+}

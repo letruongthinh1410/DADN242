@@ -13,10 +13,22 @@ import Home from './pages/Main/Home/Home.jsx';
 
 import AddPlant from './pages/Main/AddPlant/AddPlant.jsx';
 import UpdatePlant from './pages/Main/UpdatePlan/UpdatePlant.jsx';
-import Parameter
- from './pages/Main/Parameter/Parameter.jsx';
+import Parameter from './pages/Main/Parameter/Parameter.jsx';
+import TChu from './pages/Main/HomePage/HomePage.jsx'
+import ReminderSchedule from './pages/Main/RemindPage/RPage.jsx'
+import ReminderForm from './pages/Main/AddRm/AddRm.jsx'
+import UserProfile from './pages/Main/InfoUser/InfoUser.jsx' 
+import EditProfile from './pages/Main/editProfile/editProfile.jsx' 
+
+import { WebSocketProvider } from './pages/WebSocketProvider.jsx';
+
 const App = () => {
     const router = createBrowserRouter([
+        {
+            path: '/',
+            element: <TChu/>,
+            errorElement: <Error />,
+        },
         {
             path: '/',
             element: <Blank />,
@@ -42,9 +54,28 @@ const App = () => {
                             handle: { title: "Cập nhật cây trồng" },
                         },
                         {
-                            path: 'plants/parameter',
+                            path: 'parameter',
                             element: <Parameter />,
                             handle: { title: "Thông số cây trồng" },
+                        },  
+                        {
+                            path: 'schedule',
+                            element: <ReminderSchedule />,
+                            handle: { title: "Lên lịch cây trồng" },
+                        },
+                        {  path: 'schedule/add-schedule',
+                            element: <ReminderForm />,
+                            handle: { title: "Thêm lịch nhắc nhở" },
+                        },
+                        {
+                            path: 'infor-account',
+                            element: <UserProfile />,
+                            handle: { title: "Thông tin tài khoản" },
+                        },
+                        {
+                            path: 'infor-account/edit-profile',
+                            element: <EditProfile />,
+                            handle: { title: "Sửa thông tin tài khoản" },
                         },
                     ],
                 }
@@ -54,7 +85,9 @@ const App = () => {
     
     return (
         <HelmetProvider>
-            <RouterProvider router={router} />
+            <WebSocketProvider>
+                <RouterProvider router={router} />
+            </WebSocketProvider>
         </HelmetProvider>
     )
 }

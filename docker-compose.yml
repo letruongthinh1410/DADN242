@@ -9,8 +9,9 @@ services:
     networks:
       - app-network
 
-  spring_app:
-    image: brookvita3/qlnk-app:1.0
+  spring-app:
+    image: brookvita3/qlnk-app:1.6.2
+    container_name: spring_app
     restart: always
     ports:
       - "8080:8080"

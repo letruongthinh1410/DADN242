@@ -7,6 +7,8 @@
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.7",
     "@mui/x-charts": "^7.28.0",
+    "@mui/x-date-pickers": "^7.28.2",
+    "@stomp/stompjs": "^7.1.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -19,6 +21,8 @@
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^7.3.0",
     "react-scripts": "^5.0.1",
+    "socket.io-client": "^4.8.1",
+    "sockjs-client": "^1.6.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
