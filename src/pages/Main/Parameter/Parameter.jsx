@@ -15,6 +15,12 @@ import api from "../../../pages/api.jsx";
 const token =  localStorage.getItem("accessToken");
 
 const Chart = ({num, humidity, temperature, light, xLabelsTemp, xLabelsPump, xLabelsLight}) => {
+    humidity = humidity?.slice().reverse();
+    temperature = temperature?.slice().reverse();
+    light = light?.slice().reverse();
+    xLabelsTemp = xLabelsTemp?.slice().reverse();
+    xLabelsPump = xLabelsPump?.slice().reverse();
+    xLabelsLight = xLabelsLight?.slice().reverse();
     switch (num) { 
         case 1: {
             return (
@@ -216,9 +222,9 @@ const Parameter = () => {
         fetchPlants();
     }, [deviceData, plant, checkConnect, initWebSockets, selectedPlant]);
 
-    const tempValue = selectedPlant?.temperature?.values[selectedPlant.temperature?.values.length - 1] ?? -1;
-    const humidityValue = selectedPlant?.humidity?.values[selectedPlant.humidity?.values.length - 1] ?? -1;
-    const lightValue = selectedPlant?.light?.values[selectedPlant.light?.values.length - 1] ?? -1;
+    const tempValue = selectedPlant?.temperature?.values[0] ?? -1;
+    const humidityValue = selectedPlant?.humidity?.values[0] ?? -1;
+    const lightValue = selectedPlant?.light?.values[0] ?? -1;
 
     const notifyTemp = selectedPlant?.temperature?.status === false ? "Cảm biến nhiệt độ không hoạt động" : 
         (tempValue != null && selectedPlant?.temperature?.floor != null && selectedPlant?.temperature?.ceiling != null 

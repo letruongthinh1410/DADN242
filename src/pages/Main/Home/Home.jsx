@@ -142,9 +142,9 @@ const PlantCard = ({ plant }) => {
     ${plant.humidity ? `Cảm biến độ ẩm đất (${plant.humidity.key}),` : ""}
     ${plant.light ? `Cảm biến ánh sáng(${plant.light.key}))` : ""}`
 
-    const tempValue = plant.temperature?.values[plant.temperature?.values.length - 1];
-    const humidityValue = plant.humidity?.values[plant.humidity?.values.length - 1];
-    const lightValue = plant.light?.values[plant.light?.values.length - 1];
+    const tempValue = plant.temperature?.values[0];
+    const humidityValue = plant.humidity?.values[0];
+    const lightValue = plant.light?.values[0];
 
     const notifyTemp = plant?.temperature?.status === false ? "Cảm biến nhiệt độ không hoạt động" : 
         (tempValue != null && plant.temperature?.floor != null && plant.temperature?.ceiling != null 
