@@ -11,8 +11,8 @@ import { useLocation } from "react-router-dom";
 import { useWebSocket } from "../../WebSocketProvider";
 
 import { Thermometer, Droplets, Sun } from "lucide-react";
-
-const token = "..."
+import api from "../../../pages/api.jsx";
+const token =  localStorage.getItem("accessToken");
 
 const Chart = ({num, humidity, temperature, light, xLabelsTemp, xLabelsPump, xLabelsLight}) => {
     switch (num) { 
@@ -98,10 +98,23 @@ const Parameter = () => {
     const [selectedPlant, setSelectedPlant] = React.useState(plant);
     
     const { deviceData, deviceHistory, sendToDevice, initWebSockets, checkConnect} = useWebSocket()
+    const [userInfo, setUserInfo] = useState(null);
+    useEffect(() => {
+            const fetchUserInfo = async () => {
+              try {
+                const response = await api.get("/user/info");
+                console.log("Thông tin người dùng:", response.data.data);
+                setUserInfo(response.data.data);
+              } catch (error) {
+                console.error("Lỗi khi lấy thông tin người dùng:", error);
+              }
+            };
+            fetchUserInfo();
+    }, []);
     useEffect(() => {
         const fetchPlants = async () => {
             try {
-                const groupResponse = await GetGroup({ token });
+                const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 const plantData = filteredGroups.length > 0 ? await Promise.all(
                     filteredGroups.map(async (group) => {
@@ -121,8 +134,9 @@ const Parameter = () => {
                             if(!checkConnect(feed.key)) initWebSockets([feed.key], token) //bật WebSocket lên cho feed này
                             
                             const resData = await GetFeedData({
-                                username: "PhatLe", // username tạm
+                                username: userInfo.username, // username tạm
                                 feedKey: feed.key,
+                                apiKey: userInfo.apiKey,
                             });
 
                             if (feed.name === "fan") {
@@ -163,7 +177,7 @@ const Parameter = () => {
                                 try {
                                     const ruleRes = await GetRule({
                                         feedName: feed.key,
-                                        token,
+                                      
                                     });
                                     const ruleData = ruleRes.data[0];
                                         
