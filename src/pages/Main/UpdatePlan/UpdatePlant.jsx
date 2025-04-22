@@ -226,6 +226,30 @@ const UpdatePlant = () => {
     const devicesForBelow = availableDevices.filter(device => device.value !== selectedAbove);
           
 
+    const getUsedDevices = () => {
+        const fields = [
+            plantData?.humidity?.outputFeedAbove,
+            plantData?.humidity?.outputFeedBelow,
+            plantData?.light?.outputFeedAbove,
+            plantData?.light?.outputFeedBelow,
+            plantData?.temperature?.outputFeedAbove,
+            plantData?.temperature?.outputFeedBelow,
+        ];
+        return fields.filter(Boolean); // Lọc bỏ undefined, null, ""
+    };
+    const getAvailableDevices = (currentValue) => {
+        if (!plantData?.key) return [];
+    
+        const allDevices = [
+            { label: "Quạt làm mát", value: `${plantData.key}.fan` },
+            { label: "Máy bơm", value: `${plantData.key}.pump` },
+        ];
+        const usedDevices = getUsedDevices();
+    
+        // Nếu currentValue đang chọn thì phải giữ lại (không lọc mất)
+        return allDevices.filter(device => !usedDevices.includes(device.value) || device.value === currentValue);
+    };      
+        
     return (
         <div className="add-plant" style={{ margin: "1rem 4rem", padding: "1rem", border: "1px solid black", borderRadius: "1rem" }}>
             <Grid container spacing={2} className="d-flex flex-column align-items-center">
@@ -304,7 +328,7 @@ const UpdatePlant = () => {
                                     {/* <MenuItem value="">Tuỳ chọn</MenuItem>
                                     <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
                                     <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem> */}
-                                      {devicesForAbove.length > 0 ? (
+                                        {/* {devicesForAbove.length > 0 ? (
                                         <>
                                             <MenuItem value="">Tuỳ chọn</MenuItem>
                                             {devicesForAbove.map((device) => (
@@ -313,7 +337,14 @@ const UpdatePlant = () => {
                                         </>
                                         ) : (
                                         <MenuItem value="">Không có thiết bị</MenuItem>
-                                        )}
+                                        )} */}
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>    
+                                    {getAvailableDevices(plantData?.temperature?.outputFeedAbove).length > 0 ? (getAvailableDevices(plantData?.temperature?.outputFeedAbove).map(device => (
+                                    <MenuItem key={device.value} value={device.value}>
+                                        {device.label}
+                                    </MenuItem>
+                                    ))):(<MenuItem value="">Không có thiết bị</MenuItem>)}
+
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -351,7 +382,7 @@ const UpdatePlant = () => {
                                     {/* <MenuItem value="">Tuỳ chọn</MenuItem>
                                     <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
                                     <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem> */}
-                                    {devicesForBelow.length > 0 ? (
+                                    {/* {devicesForBelow.length > 0 ? (
                                         <>
                                             <MenuItem value="">Tuỳ chọn</MenuItem>
                                             {devicesForBelow.map((device) => (
@@ -360,7 +391,14 @@ const UpdatePlant = () => {
                                         </>
                                         ) : (
                                         <MenuItem value="">Không có thiết bị</MenuItem>
-                                        )}
+                                        )} */}
+                                    {getAvailableDevices(plantData?.temperature?.outputFeedBelow).length > 0 ? (getAvailableDevices(plantData?.temperature?.outputFeedBelow).map(device => (
+                                    <MenuItem key={device.value} value={device.value}>
+                                        {device.label}
+                                    </MenuItem>
+                                    ))):(<MenuItem value="">Không có thiết bị</MenuItem>)}
+
+
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -503,6 +541,7 @@ const UpdatePlant = () => {
                             </Box>
                         </Grid>
                     </Grid>
+
                     <Grid item size={{xs: 12, md: 4}} container spacing={2} sx={{ backgroundColor: "#FFFBD6", padding: "1rem", borderRadius: "8px"}}>
                         <Grid item xs={12}>
                             <Typography fontWeight="bold" fullWidth style={{ marginBottom: "1rem", textAlign: "center", color: "#ECA611" }}>
