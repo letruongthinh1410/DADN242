@@ -218,6 +218,24 @@ const AddPlant = () => {
         }
     }
 
+    const deviceOptions = [
+        { value: ".fan", label: "Quạt làm mát" },
+        { value: ".pump", label: "Máy bơm" }
+    ];
+    const getAvailableDevices = (currentFieldName) => {
+        const selectedDevices = [
+            plantData.temperature.outputFeedAbove,
+            plantData.temperature.outputFeedBelow,
+            plantData.humidity.outputFeedAbove,
+            plantData.humidity.outputFeedBelow,
+            plantData.light.outputFeedAbove,
+            plantData.light.outputFeedBelow
+        ].filter((d) => d && d !== currentFieldName);
+    
+        return deviceOptions.filter(device => !selectedDevices.includes(device.value));
+    };
+    
+    
     return (
         <div className="add-plant" style={{ margin: "1rem 4rem", padding: "1rem", border: "1px solid black", borderRadius: "1rem" }}>
             <Grid container spacing={2} className="d-flex flex-column align-items-center">
@@ -296,7 +314,9 @@ const AddPlant = () => {
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
                                     <MenuItem value=".fan">Quạt làm mát</MenuItem>
                                     <MenuItem value=".pump">Máy bơm</MenuItem>
-                                </TextField>
+                                    
+                                   
+                                    </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
                                 <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
@@ -333,6 +353,7 @@ const AddPlant = () => {
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
                                     <MenuItem value=".fan">Quạt làm mát</MenuItem>
                                     <MenuItem value=".pump">Máy bơm</MenuItem>
+                                   
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>

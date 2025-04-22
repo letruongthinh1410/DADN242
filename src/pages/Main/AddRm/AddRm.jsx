@@ -40,7 +40,11 @@ const ReminderForm = () => {
             alert("Vui lòng chọn cây, feed và nhập giá trị!");
             return;
         }
-
+        if (value <= 0) {
+            alert("Giá trị phải lớn hơn 0!");
+            return;
+        }
+        
         const time = dayjs(dateTime).format("HH:mm");
         const payload = {
             value: parseFloat(value),
@@ -103,7 +107,7 @@ const ReminderForm = () => {
                             onChange={(e) => setFeed(e.target.value)}
                             fullWidth sx={{ m: 1 }}
                         >
-                            {feeds.filter((f)=>f.name.toLowerCase().include("pump")||f.name.toLowerCase().include("fan")||f.key.toLowerCase().include("pump")||f.key.toLowerCase().include("fan"))
+                            {feeds.filter((f)=>f.name.toLowerCase().includes("pump")||f.name.toLowerCase().includes("fan")||f.key.toLowerCase().includes("pump")||f.key.toLowerCase().includes("fan"))
                             .map((f) => (
                                 <MenuItem key={f.key} value={f.key}>
                                     {f.name}

@@ -46,7 +46,10 @@ const EditReminderModal = ({ open, onClose, reminder, plants,onRefresh }) => {
 
     const handleSave = async () => {
         const time = dayjs(dateTime).format("HH:mm");
-    
+        if(value <= 0){
+            alert("Giá trị phải lớn hơn 0!");
+            return;
+        }
         const payload = {
             value: parseFloat(value),
             type,
@@ -131,7 +134,7 @@ const EditReminderModal = ({ open, onClose, reminder, plants,onRefresh }) => {
                             <FormControl fullWidth sx={{ mb: 2 }}>
                                 <Typography fontWeight="bold">Chọn feed</Typography>
                                 <Select value={feedKey} onChange={(e) => setFeedKey(e.target.value)}>
-                                    {feeds.filter((f)=>f.name.toLowerCase().include("pump")||f.name.toLowerCase().include("fan")||f.key.toLowerCase().include("pump")||f.key.toLowerCase().include("fan"))
+                                    {feeds.filter((f)=>f.name.toLowerCase().includes("pump")||f.name.toLowerCase().includes("fan")||f.key.toLowerCase().includes("pump")||f.key.toLowerCase().includes("fan"))
                                     .map(feed => (
                                         <MenuItem key={feed.key} value={feed.key}>
                                             {feed.name}
@@ -532,8 +535,8 @@ const ReminderSchedule = () => {
             // console.log("groupdata",groupData)
             const plantList = groupData.filter((group)=>!(group.key ==="default" && group.name === "Default")).map(group => {
                 groupMap[group.key] = group.name;
-                const filteredFeeds = group.feeds.filter(feed => feed.name.toLowerCase().include("pump") || feed.name.toLowerCase().include("fan")
-                || feed.key.toLowerCase().include("fan") || feed.key.toLowerCase().include("pump"));
+                const filteredFeeds = group.feeds.filter(feed => feed.name.toLowerCase().includes("pump") || feed.name.toLowerCase().includes("fan")
+                || feed.key.toLowerCase().includes("fan") || feed.key.toLowerCase().includes("pump"));
 
                 filteredFeeds.forEach(feed => {
                     feedMap[`${feed.key}`] = {

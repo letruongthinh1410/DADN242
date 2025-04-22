@@ -69,10 +69,10 @@ const UserProfile = () => {
                   <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
                     <InputGroup>
-                      <Form.Control type={showPassword ? "text" : "password"} value="********" readOnly />
-                      <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
+                      <Form.Control type={showPassword ? "text" : "password"} value="***********" readOnly />
+                      {/* <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
-                      </Button>
+                      </Button> */}
                     </InputGroup>
                   </Form.Group>
                   <Form.Group className="mb-3">
