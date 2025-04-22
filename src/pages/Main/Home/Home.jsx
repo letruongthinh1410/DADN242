@@ -337,18 +337,9 @@ const PlantList = ({ plants, loading}) => {
                                     ))
                                     ) : plants.length > 0 ? (
                                     currentPlants.map((plant, index) => {
-                                        const hasData =
-                                        plant.temperature?.values?.length > 0 ||
-                                        plant.humidity?.values?.length > 0 ||
-                                        plant.light?.values?.length > 0;
-
                                         return (
                                         <Grid item key={index}>
-                                            {hasData ? (
                                             <PlantCard plant={plant} />
-                                            ) : (
-                                            <Card sx={{ width: 500, height: 380 }} />
-                                            )}
                                         </Grid>
                                         );
                                     })
