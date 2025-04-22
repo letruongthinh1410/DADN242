@@ -211,45 +211,21 @@ const UpdatePlant = () => {
         }
     };
     
-    const availableDevices = [
-        { label: "Quạt làm mát", value: `${plantData.key}.fan` },
-        { label: "Máy bơm", value: `${plantData.key}.pump` },
-      ];
+    // const availableDevices = [
+    //     { label: "Quạt làm mát", value: `${plantData.key}.fan` },
+    //     { label: "Máy bơm", value: `${plantData.key}.pump` },
+    //   ];
       
-    // Thiết bị đã chọn ở phía trên (Nhiệt độ cao)
-    const selectedAbove = plantData?.temperature?.outputFeedAbove;
-    // Thiết bị đã chọn ở phía dưới (Nhiệt độ thấp)
-    const selectedBelow = plantData?.temperature?.outputFeedBelow;
+    // // Thiết bị đã chọn ở phía trên (Nhiệt độ cao)
+    // const selectedAbove = plantData?.temperature?.outputFeedAbove;
+    // // Thiết bị đã chọn ở phía dưới (Nhiệt độ thấp)
+    // const selectedBelow = plantData?.temperature?.outputFeedBelow;
     
-    // Các thiết bị còn lại cho mỗi phần
-    const devicesForAbove = availableDevices.filter(device => device.value !== selectedBelow);
-    const devicesForBelow = availableDevices.filter(device => device.value !== selectedAbove);
+    // // Các thiết bị còn lại cho mỗi phần
+    // const devicesForAbove = availableDevices.filter(device => device.value !== selectedBelow);
+    // const devicesForBelow = availableDevices.filter(device => device.value !== selectedAbove);
           
 
-    const getUsedDevices = () => {
-        const fields = [
-            plantData?.humidity?.outputFeedAbove,
-            plantData?.humidity?.outputFeedBelow,
-            plantData?.light?.outputFeedAbove,
-            plantData?.light?.outputFeedBelow,
-            plantData?.temperature?.outputFeedAbove,
-            plantData?.temperature?.outputFeedBelow,
-        ];
-        return fields.filter(Boolean); // Lọc bỏ undefined, null, ""
-    };
-    const getAvailableDevices = (currentValue) => {
-        if (!plantData?.key) return [];
-    
-        const allDevices = [
-            { label: "Quạt làm mát", value: `${plantData.key}.fan` },
-            { label: "Máy bơm", value: `${plantData.key}.pump` },
-        ];
-        const usedDevices = getUsedDevices();
-    
-        // Nếu currentValue đang chọn thì phải giữ lại (không lọc mất)
-        return allDevices.filter(device => !usedDevices.includes(device.value) || device.value === currentValue);
-    };      
-        
     return (
         <div className="add-plant" style={{ margin: "1rem 4rem", padding: "1rem", border: "1px solid black", borderRadius: "1rem" }}>
             <Grid container spacing={2} className="d-flex flex-column align-items-center">
@@ -325,26 +301,9 @@ const UpdatePlant = () => {
                                     size="small"
                                     sx={{ width: "10rem" }}
                                 >
-                                    {/* <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
-                                    <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem> */}
-                                        {/* {devicesForAbove.length > 0 ? (
-                                        <>
-                                            <MenuItem value="">Tuỳ chọn</MenuItem>
-                                            {devicesForAbove.map((device) => (
-                                            <MenuItem key={device.value} value={device.value}>{device.label}</MenuItem>
-                                            ))}
-                                        </>
-                                        ) : (
-                                        <MenuItem value="">Không có thiết bị</MenuItem>
-                                        )} */}
-                                    <MenuItem value="">Tuỳ chọn</MenuItem>    
-                                    {getAvailableDevices(plantData?.temperature?.outputFeedAbove).length > 0 ? (getAvailableDevices(plantData?.temperature?.outputFeedAbove).map(device => (
-                                    <MenuItem key={device.value} value={device.value}>
-                                        {device.label}
-                                    </MenuItem>
-                                    ))):(<MenuItem value="">Không có thiết bị</MenuItem>)}
-
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value={`${plantData.key}.fan`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.fan`}>Quạt làm mát</MenuItem>
+                                    <MenuItem value={`${plantData.key}.pump`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.pump`}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -360,8 +319,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -379,26 +338,9 @@ const UpdatePlant = () => {
                                     size="small"
                                     sx={{ width: "10rem" }}
                                 >
-                                    {/* <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
-                                    <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem> */}
-                                    {/* {devicesForBelow.length > 0 ? (
-                                        <>
-                                            <MenuItem value="">Tuỳ chọn</MenuItem>
-                                            {devicesForBelow.map((device) => (
-                                            <MenuItem key={device.value} value={device.value}>{device.label}</MenuItem>
-                                            ))}
-                                        </>
-                                        ) : (
-                                        <MenuItem value="">Không có thiết bị</MenuItem>
-                                        )} */}
-                                    {getAvailableDevices(plantData?.temperature?.outputFeedBelow).length > 0 ? (getAvailableDevices(plantData?.temperature?.outputFeedBelow).map(device => (
-                                    <MenuItem key={device.value} value={device.value}>
-                                        {device.label}
-                                    </MenuItem>
-                                    ))):(<MenuItem value="">Không có thiết bị</MenuItem>)}
-
-
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value={`${plantData.key}.fan`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.fan`}>Quạt làm mát</MenuItem>
+                                    <MenuItem value={`${plantData.key}.pump`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.pump`}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -414,8 +356,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
@@ -480,8 +422,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
-                                    <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem>
+                                    <MenuItem value={`${plantData.key}.fan`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.fan`}>Quạt làm mát</MenuItem>
+                                    <MenuItem value={`${plantData.key}.pump`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.pump`}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -497,8 +439,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -517,8 +459,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
-                                    <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem>
+                                    <MenuItem value={`${plantData.key}.fan`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.fan`}>Quạt làm mát</MenuItem>
+                                    <MenuItem value={`${plantData.key}.pump`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.pump`}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -535,8 +477,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
@@ -601,8 +543,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
-                                    <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem>
+                                    <MenuItem value={`${plantData.key}.fan`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.fan`}>Quạt làm mát</MenuItem>
+                                    <MenuItem value={`${plantData.key}.pump`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.pump`}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -618,8 +560,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -638,8 +580,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value={`${plantData.key}.fan`}>Quạt làm mát</MenuItem>
-                                    <MenuItem value={`${plantData.key}.pump`}>Máy bơm</MenuItem>
+                                    <MenuItem value={`${plantData.key}.fan`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.fan`}>Quạt làm mát</MenuItem>
+                                    <MenuItem value={`${plantData.key}.pump`} disabled={plantData.temperature.outputFeedBelow === `${plantData.key}.pump`}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -655,8 +597,8 @@ const UpdatePlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
