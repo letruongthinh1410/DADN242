@@ -12,7 +12,7 @@ import { GetGroup, GetRule, DeleteGroup, DeleteFeed, DeleteRule, CreateRule, Cre
 import { useWebSocket } from "../../WebSocketProvider";
 import api from "../../../pages/api.jsx";
 
-const token = localStorage.getItem("accessToken"); // token của bạn
+ // token của bạn
 
 const PlantCard = ({ plant }) => {
 
@@ -29,7 +29,6 @@ const PlantCard = ({ plant }) => {
 
     const handleDeletePlant = async (e) => {
         e.preventDefault();
-    
         try {
             // Xoá Rule (nếu tồn tại key)
             for (const feed of [plant.temperature, plant.humidity, plant.light]) {
@@ -360,6 +359,7 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const token = localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 // lấy dữ liệu của plant (bật websocket và lấy deviceData)

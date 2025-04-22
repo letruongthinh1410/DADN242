@@ -100,7 +100,7 @@ const Parameter = () => {
     const location = useLocation();
     const plant = location.state?.plant || null;
 
-    const token =  localStorage.getItem("accessToken");
+    
     
     const [plants, setPlants] = useState([]);
     const [selectedPlant, setSelectedPlant] = React.useState(plant);
@@ -110,6 +110,7 @@ const Parameter = () => {
     useEffect(() => {
         const fetchPlants = async () => {
             try {
+                const token =  localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 const plantData = filteredGroups.length > 0 ? await Promise.all(
@@ -234,7 +235,7 @@ const Parameter = () => {
             }
         };
         fetchPlants();
-    }, [plant, checkConnect, initWebSockets, selectedPlant, token, deviceData])
+    }, [plant, checkConnect, initWebSockets, selectedPlant, deviceData])
     
     const tempValue = selectedPlant?.temperature?.values[0] ?? -1;
     const humidityValue = selectedPlant?.humidity?.values[0] ?? -1;
