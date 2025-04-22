@@ -65,19 +65,12 @@ const AddPlant = () => {
         e.preventDefault();
     
         const checkCondition = (data, label) => {
-            const hasAny = data.floor || data.ceiling || data.outputFeedAbove || data.outputFeedBelow || data.aboveValue || data.belowValue;
-            const isIncomplete = hasAny && (!data.floor || !data.ceiling || !data.outputFeedAbove || !data.outputFeedBelow || !data.aboveValue || !data.belowValue);
-    
-            if (hasAny && (data.floor === "-1" || data.ceiling === "-1")) {
+            if ((data.floor && data.floor === "-1") || (data.ceiling && data.ceiling === "-1")) {
                 return `Ngưỡng của ${label} không được để giá trị âm`;
             }
     
-            if (hasAny && Number(data.floor) > Number(data.ceiling)) {
+            if (data.floor && data.ceiling &&Number(data.floor) > Number(data.ceiling)) {
                 return `${label.charAt(0).toUpperCase() + label.slice(1)} tối đa không được nhỏ hơn tối thiểu`;
-            }
-    
-            if (isIncomplete) {
-                return `Bạn chưa nhập đủ thông tin về ${label}`;
             }
     
             return null;
@@ -121,13 +114,6 @@ const AddPlant = () => {
 
             // Xử lý nhiệt độ
             if (shouldCreateFeedAndRule(plantData.temperature)) {
-                await CreateFeeds({
-                    groupName: response,
-                    feedName: "temp",
-                    feedFloor: plantData.temperature.floor,
-                    feedCeiling: plantData.temperature.ceiling,
-                    token: token,
-                });
                 await CreateRule({
                     inputFeed: `${response.key}.temp`,
                     ceiling: plantData.temperature.ceiling,
@@ -142,13 +128,6 @@ const AddPlant = () => {
 
             // Xử lý độ ẩm
             if (shouldCreateFeedAndRule(plantData.humidity)) {
-                await CreateFeeds({
-                    groupName: response,
-                    feedName: "humidity",
-                    feedFloor: plantData.humidity.floor,
-                    feedCeiling: plantData.humidity.ceiling,
-                    token: token,
-                });
                 await CreateRule({
                     inputFeed: `${response.key}.humidity`,
                     ceiling: plantData.humidity.ceiling,
@@ -163,13 +142,6 @@ const AddPlant = () => {
 
             // Xử lý ánh sáng
             if (shouldCreateFeedAndRule(plantData.light)) {
-                await CreateFeeds({
-                    groupName: response,
-                    feedName: "light",
-                    feedFloor: plantData.light.floor,
-                    feedCeiling: plantData.light.ceiling,
-                    token: token,
-                });
                 await CreateRule({
                     inputFeed: `${response.key}.light`,
                     ceiling: plantData.light.ceiling,
@@ -181,21 +153,44 @@ const AddPlant = () => {
                     token: token,
                 });
             }
+            await CreateFeeds({
+                groupName: response,
+                feedName: "temp",
+                feedFloor: plantData.temperature.floor,
+                feedCeiling: plantData.temperature.ceiling,
+                token: token,
+            });
+
+            await CreateFeeds({
+                groupName: response,
+                feedName: "humidity",
+                feedFloor: plantData.humidity.floor,
+                feedCeiling: plantData.humidity.ceiling,
+                token: token,
+            });
+
+            await CreateFeeds({
+                groupName: response,
+                feedName: "light",
+                feedFloor: plantData.light.floor,
+                feedCeiling: plantData.light.ceiling,
+                token: token,
+            });
 
             
             await CreateFeeds({
                 groupName: response,
                 feedName: "fan",
-                feedFloor: 0,
-                feedCeiling: 1,
+                feedFloor: 0.0,
+                feedCeiling: 1.0,
                 token: token,
             })
 
             await CreateFeeds({
                 groupName: response,
                 feedName: "pump",
-                feedFloor: 0,
-                feedCeiling: 1,
+                feedFloor: 0.0,
+                feedCeiling: 1.0,
                 token: token,
             })
 

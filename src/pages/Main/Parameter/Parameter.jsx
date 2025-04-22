@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { FormControl, Select, MenuItem, Typography, Grid, Alert, Button, Switch, TableContainer, TableBody, TableCell, TableHead, TableRow, Table } from "@mui/material";
+import { FormControl, Select, MenuItem, Typography, Grid, Alert, Button, Switch, TableContainer, TableBody, TableCell, TableHead, TableRow, Table, CircularProgress } from "@mui/material";
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import { LineChart } from "@mui/x-charts/LineChart";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -103,12 +103,12 @@ const Parameter = () => {
     const [plants, setPlants] = useState([]);
     const [selectedPlant, setSelectedPlant] = React.useState(plant);
     
-    const { deviceData, sendToDevice, initWebSockets, checkConnect} = useWebSocket()
-
+    const { sendToDevice, initWebSockets, checkConnect, version} = useWebSocket()
+    const [loading, setLoading] = useState(0)
     useEffect(() => {
         const fetchPlants = async () => {
+            setLoading(loading)
             try {
-                const token =  localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 const plantData = filteredGroups.length > 0 ? await Promise.all(
@@ -127,7 +127,7 @@ const Parameter = () => {
             
                     await Promise.all(
                         group.feeds.map(async (feed) => {
-                            if(!checkConnect(feed.key)) initWebSockets([feed.key], token) //bật WebSocket lên cho feed này
+                            if(!checkConnect(feed.key)) initWebSockets([feed.key]) //bật WebSocket lên cho feed này
                             
                             const response = await api.get("/user/info");
 
@@ -230,10 +230,12 @@ const Parameter = () => {
                 
             } catch (err) {
             console.error("❌ Error fetching groups:", err);
+            } finally {
+                setLoading(loading + 1)
             }
         };
         fetchPlants();
-    }, [plant, checkConnect, initWebSockets, selectedPlant, deviceData])
+    }, [version])
     
     const tempValue = selectedPlant?.temperature?.values[0] ?? -1;
     const humidityValue = selectedPlant?.humidity?.values[0] ?? -1;
@@ -289,20 +291,15 @@ const Parameter = () => {
         setSelectedPlant(updatedPlants.find(plant => plant.id === selectedPlant.id))
     };
 
-    //----------------Liên quan đến table------------
-    const [scroll, setScroll] = React.useState(true);
-
-    const handleScroll = (event) => {
-        setScroll(event.target.checked);
-    };
-
     const [numButton, setNumButton] = useState(1)
 
     // Format thời gian dạng "HH:mm" hoặc "Hh"
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
-            <Grid container spacing={1} style={{padding: "0 4rem", height: window.innerWidth > 768 ? "80vh" : "fit-content" }}>
+            { loading >= 1 ? (
+                <>
+                <Grid container spacing={1} style={{padding: "0 4rem", height: window.innerWidth > 768 ? "80vh" : "fit-content" }}>
                 <Grid size={{xs: 12, md: 8}}>
                     <FormControl fullWidth style={{ marginBottom: "10px", width: "13rem" }} >
                         <Typography fontWeight="bold" style={{marginBottom: "0.3rem"}}>Cây trồng:</Typography>
@@ -316,8 +313,8 @@ const Parameter = () => {
                             size="small"
                         >
                             {plants.map((plant) => (
-                                <MenuItem key={plant.id} value={plant.id}>
-                                    {plant.name} - {plant.id}
+                                <MenuItem key={plant?.id} value={plant?.id}>
+                                    {plant?.name} - {plant?.id}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -417,8 +414,8 @@ const Parameter = () => {
                                     Ánh sáng
                                 </Typography>
                             </Grid>
-                            <div className="d-flex align-items-center justify-content-start">
-                                <Grid size={{xs: 12, md: 6}}>
+                            <div className="d-flex align-items-center justify-content-center">
+                                <Grid size={{xs: 12, md: 12}}>
                                     <div 
                                         style={{
                                             width: "10rem",
@@ -448,20 +445,6 @@ const Parameter = () => {
                                             <span style={{ fontSize: "14px", color: "gray" }}>100</span>
                                         </div>
                                     </div>
-                                </Grid>
-                            
-                                <Grid 
-                                    size={{xs: 12, md: 8}} 
-                                    className="d-flex align-items-center justify-content-between"
-                                    style={{marginLeft: "1.3rem", marginTop: "1rem"}}
-                                >
-                                    <Typography>Thả màn</Typography>
-                                    <Switch
-                                        checked={scroll}
-                                        onChange={handleScroll}
-                                        color="warning"
-                                    />
-                                    <Typography>Cuốn màn</Typography>
                                 </Grid>
                             </div>
                             
@@ -639,7 +622,12 @@ const Parameter = () => {
                     xLabelsLight={selectedPlant?.light?.times}/>
                 </Grid>
             </Grid>
-            
+            </>) : (
+                <div className="d-flex align-items-center justify-content-center" style={{minHeight: "80vh"}}>
+                    <CircularProgress size="6rem" />
+                </div>
+                
+            )}
         </LocalizationProvider>
     )
 }

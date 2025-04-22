@@ -12,7 +12,8 @@ import { GetGroup, GetRule, DeleteGroup, DeleteFeed, DeleteRule, CreateRule, Cre
 import { useWebSocket } from "../../WebSocketProvider";
 import api from "../../../pages/api.jsx";
 
-import CircularProgress from "@mui/material/CircularProgress";
+import { LoadingButton } from '@mui/lab';
+
  // token của bạn
 
 const PlantCard = ({ plant, loading }) => {
@@ -21,6 +22,9 @@ const PlantCard = ({ plant, loading }) => {
     
     const originalPlant = { ...plant }
 
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    
     const deleted = {
         rules: [],
         feeds: [],
@@ -30,6 +34,7 @@ const PlantCard = ({ plant, loading }) => {
 
     const handleDeletePlant = async (e) => {
         e.preventDefault();
+        setIsDeleting(true);
         try {
             // Xoá Rule (nếu tồn tại key)
             for (const feed of [plant.temperature, plant.humidity, plant.light]) {
@@ -150,6 +155,9 @@ const PlantCard = ({ plant, loading }) => {
     
             console.log("Failed to delete a plant", error);
             alert(`Xoá cây trồng ${plant.name} thất bại`);
+        } finally {
+            setIsDeleting(false);
+            setOpenDialog(false);
         }
     };
     
@@ -278,9 +286,13 @@ const PlantCard = ({ plant, loading }) => {
                 <Button onClick={() => setOpenDialog(false)} color="primary">
                     Huỷ
                 </Button>
-                <Button onClick={handleDeletePlant} color="error">
+                <LoadingButton
+                    onClick={handleDeletePlant}
+                    color="error"
+                    loading={isDeleting}
+                >
                     Xoá
-                </Button>
+                </LoadingButton>
                 </DialogActions>
             </Dialog>  
             </Card>
@@ -371,14 +383,13 @@ const PlantList = ({ plants, loading}) => {
 };
 
 const Home = () => {
-    const { deviceData, initWebSockets, checkConnect } = useWebSocket()
+    const { version, initWebSockets, checkConnect } = useWebSocket()
     const [plants, setPlants] = useState([])
     const [loading, setLoading] = useState(false)
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true)
             try {
-                const token = localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 // lấy dữ liệu của plant (bật websocket và lấy deviceData)
@@ -399,7 +410,7 @@ const Home = () => {
                     
                     await Promise.all(
                         group.feeds.map(async (feed) => {
-                            if(!checkConnect(feed.key)) initWebSockets([feed.key],token) //bật WebSocket lên cho feed này
+                            if(!checkConnect(feed.key)) initWebSockets([feed.key]) //bật WebSocket lên cho feed này
 
                             const response = await api.get("/user/info");
 
@@ -502,7 +513,7 @@ const Home = () => {
              };
             
             fetchData();
-        }, [deviceData, initWebSockets, checkConnect]);
+        }, [version, initWebSockets, checkConnect]);
 
     return (
         <div className="home">
