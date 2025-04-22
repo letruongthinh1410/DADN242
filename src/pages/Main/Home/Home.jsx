@@ -12,9 +12,10 @@ import { GetGroup, GetRule, DeleteGroup, DeleteFeed, DeleteRule, CreateRule, Cre
 import { useWebSocket } from "../../WebSocketProvider";
 import api from "../../../pages/api.jsx";
 
+import CircularProgress from "@mui/material/CircularProgress";
  // token của bạn
 
-const PlantCard = ({ plant }) => {
+const PlantCard = ({ plant, loading }) => {
 
     const [openDialog, setOpenDialog] = useState(false);
     
@@ -189,7 +190,7 @@ const PlantCard = ({ plant }) => {
         ? "Không có dữ liệu"
         : [notifyTemp, notifyHumidity, notifyLight].filter(n => n !== "Bình thường").join(", ") || "Bình thường";
     return (
-        <Card 
+            <Card 
             sx={{ 
                 width: 500, height: 380, borderRadius: "15px",
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
@@ -201,8 +202,6 @@ const PlantCard = ({ plant }) => {
             }}  
             className="d-flex flex-column align-items-center justify-content-center"
         >
-            {plant ? (
-                <>
                 <CardContent>
                 {/* Tên cây */}
                 <Typography variant="h6" fontWeight="bold" style={{fontSize: "1.2rem"}} className="d-flex align-items-center justify-content-center">
@@ -283,24 +282,13 @@ const PlantCard = ({ plant }) => {
                     Xoá
                 </Button>
                 </DialogActions>
-            </Dialog>
-                </>
+            </Dialog>  
+            </Card>
                 
-            ) : (
-                <Skeleton
-                    animation="wave"
-                    height={30}
-                    width="80%"
-                    style={{ marginBottom: 6 }}
-                    sx={{ color: "black" }}
-                />
-            )}
-                
-        </Card>
-    );
-};
+        )
+    };
 
-const PlantList = ({ plants }) => {
+const PlantList = ({ plants, loading}) => {
     const [page, setPage] = useState(1);
     const plantsPerPage = 2;
 
@@ -317,16 +305,46 @@ const PlantList = ({ plants }) => {
                 container 
                 spacing={3} 
                 justifyContent="center"
-                alignItems="center" // Để danh sách mở rộng khi cần
-            >
-                {plants.length > 0 ? (currentPlants.map((plant, index) => (
-                    <Grid item key={index} >
-                        <PlantCard plant={plant} />
-                    </Grid>
-                ))) : ""}
-            </Grid>
+                 // Để danh sách mở rộng khi cần
+                                style={{minHeight: "50vh"}}
+                            >
+                                {loading ? (
+                                    Array.from({ length: 2 }).map((_, index) => (
+                                        <Grid item key={index}>
+                                            <Card sx={{ width: 500, height: 380 }}>
+                                                <Skeleton
+                                                    variant="rectangular"
+                                                    sx={{
+                                                        bgcolor: "grey.50", // Set màu xám đậm cho Skeleton
+                                                        width: 500,
+                                                        height: 380,
+                                                    }}
+                                                />
+                                            </Card>
+                                        </Grid>
+                                    ))
+                                ) : plants.length > 0 ? (
+                                    currentPlants.map((plant, index) => (
+                                        <Grid item key={index}>
+                                            <PlantCard plant={plant} />
+                                        </Grid>
+                                    ))
+                                ) : (
+                                    <Card sx={{ width: 500, height: 380 }}>
+                                        <Skeleton
+                                            variant="rectangular"
+                                            animation="wave"
+                                            sx={{
+                                                bgcolor: "grey.300", // Set màu xám đậm cho Skeleton
+                                                width: 500,
+                                                height: 380,
+                                            }}
+                                        />
+                                    </Card>
+                                )}
+                            </Grid>
 
-            {/* Pagination luôn ở dưới */}
+                            {/* Pagination luôn ở dưới */}
             <Box sx={{ display: "flex", justifyContent: "space-around", alignItems: "center", mt: 3 }}>
                 <NavLink to="add" style={{textDecoration: "none"}}>
                         <Button
@@ -355,9 +373,10 @@ const PlantList = ({ plants }) => {
 const Home = () => {
     const { deviceData, initWebSockets, checkConnect } = useWebSocket()
     const [plants, setPlants] = useState([])
-    
+    const [loading, setLoading] = useState(false)
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true)
             try {
                 const token = localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
@@ -398,7 +417,7 @@ const Home = () => {
                                     id: feed.id,
                                     name: feed.name,
                                     key: feed.key,
-                                    status: resData != null && values[values.length - 1] > 0,
+                                    status: resData != null && values[0] > 0,
                                 };
                             } 
                             else if (feed.name === "pump") {
@@ -409,7 +428,7 @@ const Home = () => {
                                     id: feed.id,
                                     name: feed.name,
                                     key: feed.key,
-                                    status: resData != null && values[values.length - 1] > 0,
+                                    status: resData != null && values[0] > 0,
                                 };
                             } 
                             else {
@@ -477,15 +496,17 @@ const Home = () => {
 
             } catch (err) {
                 console.error("❌ Error fetching groups:", err);
+            } finally {
+                setLoading(false)
             }
-            };
+             };
             
             fetchData();
         }, [deviceData, initWebSockets, checkConnect]);
 
     return (
         <div className="home">
-            <PlantList plants={plants}/>
+            <PlantList plants={plants} loading={loading}/>
         </div>
     );
 }

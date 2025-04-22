@@ -234,7 +234,6 @@ const AddPlant = () => {
                     />
                 </Grid>
                 <Grid item size={12} container spacing={2}>
-                    {/* Nhiệt độ phù hợp */}
                     <Grid item size={{xs: 12, md: 4}} container spacing={2} sx={{ backgroundColor: "#D0F4E0", padding: "1rem", borderRadius: "8px" }}>
                         <Grid item xs={12}>
                             <Typography fontWeight="bold" fullWidth style={{ marginBottom: "1rem" , textAlign: "center", color: "#2C98A0" }}>
@@ -294,8 +293,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.temperature.outputFeedBelow === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.temperature.outputFeedBelow === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -331,8 +330,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.temperature.outputFeedAbove === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.temperature.outputFeedAbove === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -414,8 +413,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.humidity.outputFeedBelow === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.humidity.outputFeedBelow === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -451,8 +450,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.humidity.outputFeedAbove === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.humidity.outputFeedAbove === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -475,6 +474,7 @@ const AddPlant = () => {
                             </Box>
                         </Grid>
                     </Grid>
+                    {/* Ánh sáng phù hợp */}
                     <Grid item size={{xs: 12, md: 4}} container spacing={2} sx={{ backgroundColor: "#FFFBD6", padding: "1rem", borderRadius: "8px"}}>
                         <Grid item xs={12}>
                             <Typography fontWeight="bold" fullWidth style={{ marginBottom: "1rem", textAlign: "center", color: "#ECA611" }}>
@@ -534,8 +534,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.light.outputFeedBelow === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.light.outputFeedBelow === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -571,8 +571,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.light.outputFeedAbove === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.light.outputFeedAbove === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>

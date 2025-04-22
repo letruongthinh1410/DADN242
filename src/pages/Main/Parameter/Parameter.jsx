@@ -100,8 +100,6 @@ const Parameter = () => {
     const location = useLocation();
     const plant = location.state?.plant || null;
 
-    
-    
     const [plants, setPlants] = useState([]);
     const [selectedPlant, setSelectedPlant] = React.useState(plant);
     
@@ -147,7 +145,7 @@ const Parameter = () => {
                                     id: feed.id,
                                     name: feed.name,
                                     key: feed.key,
-                                    status: resData != null && values[values.length - 1] > 0,
+                                    status: resData != null && values[0] > 0,
                                 };
                             } 
                             else if (feed.name === "pump") {
@@ -158,7 +156,7 @@ const Parameter = () => {
                                     id: feed.id,
                                     name: feed.name,
                                     key: feed.key,
-                                    status: resData != null && values[values.length - 1] > 0,
+                                    status: resData != null && values[0] > 0,
                                 };
                             } 
                             else {
@@ -277,7 +275,7 @@ const Parameter = () => {
                 };
     
                 // Gửi lệnh đến thiết bị
-                sendToDevice(plant[type].key, event.target.checked ? "1" : "0");
+                sendToDevice(plant[type].key, event.target.checked ? 1.0 : 0.0);
                 
     
                 return {
