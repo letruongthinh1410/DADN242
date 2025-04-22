@@ -305,8 +305,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -342,8 +342,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
@@ -425,8 +425,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -463,8 +463,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
@@ -546,8 +546,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -583,8 +583,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { FormControl, Select, MenuItem, Typography, Grid, Alert, Button, Switch, TableContainer, TableBody, TableCell, TableHead, TableRow, Table, CircularProgress } from "@mui/material";
+import { Card, FormControl, Select, MenuItem, Typography, Grid, Alert, Button, Switch, TableContainer, TableBody, TableCell, TableHead, TableRow, Table, CircularProgress } from "@mui/material";
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import { LineChart } from "@mui/x-charts/LineChart";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -297,9 +297,15 @@ const Parameter = () => {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
-            { loading >= 1 ? (
-                <>
-                <Grid container spacing={1} style={{padding: "0 4rem", height: window.innerWidth > 768 ? "80vh" : "fit-content" }}>
+            { loading >= 1 ? plants.length >= 1 ? (
+                plants.map((plant, index) => {
+                    const hasData = plant.temperature?.values?.length > 0 ||
+                    plant.humidity?.values?.length > 0 ||
+                    plant.light?.values?.length > 0;
+                return (
+                    hasData ? (
+                        <>
+                        <Grid container spacing={1} style={{padding: "0 4rem", height: window.innerWidth > 768 ? "80vh" : "fit-content" }}>
                 <Grid size={{xs: 12, md: 8}}>
                     <FormControl fullWidth style={{ marginBottom: "10px", width: "13rem" }} >
                         <Typography fontWeight="bold" style={{marginBottom: "0.3rem"}}>Cây trồng:</Typography>
@@ -622,12 +628,21 @@ const Parameter = () => {
                     xLabelsLight={selectedPlant?.light?.times}/>
                 </Grid>
             </Grid>
-            </>) : (
-                <div className="d-flex align-items-center justify-content-center" style={{minHeight: "80vh"}}>
+                        </>
+                    
+                    ) : (
+                    <Card sx={{ width: "80vh"}} />
+                    ))})) : (
+                    <Grid item xs={12} className="d-flex align-items-start" style={{margin: "0 5rem"}}>
+                        <Typography variant="h6" color="text.secondary" textAlign="start">
+                            Chưa có cây trồng nào hết...
+                        </Typography>
+                    </Grid>
+                ) : (
+                    <div className="d-flex align-items-center justify-content-center" style={{minHeight: "80vh"}}>
                     <CircularProgress size="6rem" />
                 </div>
-                
-            )}
+                )}
         </LocalizationProvider>
     )
 }

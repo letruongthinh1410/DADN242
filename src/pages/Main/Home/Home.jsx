@@ -318,7 +318,7 @@ const PlantList = ({ plants, loading}) => {
                 spacing={3} 
                 justifyContent="center"
                  // Để danh sách mở rộng khi cần
-                                style={{minHeight: "50vh"}}
+                style={{minHeight: "50vh"}}
                             >
                                 {loading ? (
                                     Array.from({ length: 2 }).map((_, index) => (
@@ -327,33 +327,39 @@ const PlantList = ({ plants, loading}) => {
                                                 <Skeleton
                                                     variant="rectangular"
                                                     sx={{
-                                                        bgcolor: "grey.50", // Set màu xám đậm cho Skeleton
+                                                        bgcolor: "grey.50",
                                                         width: 500,
                                                         height: 380,
-                                                    }}
+                                                }}
                                                 />
                                             </Card>
                                         </Grid>
                                     ))
-                                ) : plants.length > 0 ? (
-                                    currentPlants.map((plant, index) => (
+                                    ) : plants.length > 0 ? (
+                                    currentPlants.map((plant, index) => {
+                                        const hasData =
+                                        plant.temperature?.values?.length > 0 ||
+                                        plant.humidity?.values?.length > 0 ||
+                                        plant.light?.values?.length > 0;
+
+                                        return (
                                         <Grid item key={index}>
+                                            {hasData ? (
                                             <PlantCard plant={plant} />
+                                            ) : (
+                                            <Card sx={{ width: 500, height: 380 }} />
+                                            )}
                                         </Grid>
-                                    ))
-                                ) : (
-                                    <Card sx={{ width: 500, height: 380 }}>
-                                        <Skeleton
-                                            variant="rectangular"
-                                            animation="wave"
-                                            sx={{
-                                                bgcolor: "grey.300", // Set màu xám đậm cho Skeleton
-                                                width: 500,
-                                                height: 380,
-                                            }}
-                                        />
-                                    </Card>
-                                )}
+                                        );
+                                    })
+                                    ) : (
+                                    <Grid item xs={12} className="d-flex align-items-center justify-content-center">
+                                        <Typography variant="h6" color="text.secondary" textAlign="center">
+                                           Chưa có cây trồng nào hết...
+                                        </Typography>
+                                    </Grid>
+                                    )}
+
                             </Grid>
 
                             {/* Pagination luôn ở dưới */}
