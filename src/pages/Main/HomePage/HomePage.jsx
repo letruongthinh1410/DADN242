@@ -86,7 +86,6 @@ function TChu() {
 
       console.log("Access Token:", localStorage.getItem("accessToken"));
       console.log("Refresh Token:", localStorage.getItem("refreshToken"));
-      alert("Đăng nhập thành công!");
       navigate("/plants");
     } catch (error) {
       alert(error.response?.data?.message ||"Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.");
@@ -137,7 +136,7 @@ function TChu() {
   const handleForgotPassword = async () => {
     setLoading(true); // Set loading to true when starting password reset request
     try {
-      const res = await api.post("/user/forgot-password", {
+      await api.post("/user/forgot-password", {
         email: rsEmail,
       });
       alert("Đã gửi token về email của bạn");  // Thành công

@@ -42,11 +42,6 @@ const Profile = () => {
         }
     };
 
-    const handleLogOutClick = () => {
-        setAnchorEl(null);
-        setOpenDialog(true);
-    };
-
     useEffect(() => {
         const fetchUserInfo = async () => {
           try {
