@@ -18,7 +18,7 @@ import {
   import { Save, CircleX, Thermometer, Droplets, Sun } from "lucide-react";
 
   import { NavLink, useNavigate, useLocation } from "react-router-dom";
-  import { ModifyFeed, ModifyGroup, ModifyRule, CreateFeeds, CreateRule } from "../../../api";
+  import { ModifyFeed, ModifyGroup, ModifyRule } from "../../../api";
 
 const UpdatePlant = () => { 
     const navigate = useNavigate();
@@ -27,27 +27,17 @@ const UpdatePlant = () => {
     const plant = location.state?.plant || null;
 
     const getFeedData = (feed) => {
-        return feed?.ceiling ? {
-            ceiling: feed.ceiling,
-            floor: feed.floor,
-            outputFeedAbove: feed.outputFeedAbove,
-            outputFeedBelow: feed.outputFeedBelow,
-            aboveValue: feed.aboveValue,
-            belowValue: feed.belowValue,
+        return {
+            ceiling: feed.ceiling ?? "",
+            floor: feed.floor ?? "",
+            outputFeedAbove: feed.outputFeedAbove ?? "",
+            outputFeedBelow: feed.outputFeedBelow ?? "",
+            aboveValue: feed.aboveValue ?? "", 
+            belowValue: feed.belowValue ?? "",
             id: feed.id,
             name: feed.name,
             key: feed.key
-        } : {
-            ceiling: "",
-            floor: "",
-            outputFeedAbove: "",
-            outputFeedBelow: "",
-            aboveValue: "",
-            belowValue: "",
-            id: "",
-            name: "",
-            key: ""
-        };
+        } 
     };
     
 
@@ -89,6 +79,8 @@ const UpdatePlant = () => {
         light: getFeedData(plant.light),
     });
 
+    console.log(plantData)
+
     const [loading, setLoading] = React.useState(false);
     const [openConfirm, setOpenConfirm] = React.useState(false);
 
@@ -128,13 +120,8 @@ const UpdatePlant = () => {
     const handleUpdatePlant = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const token = "..."; // token tạm thời
     
         const isNameChanged = plantData.name !== plantOrigin.name;
-    
-        const shouldCreateFeedAndRule = (data) => {
-            return data.floor || data.ceiling || data.outputFeedAbove || data.outputFeedBelow || data.aboveValue || data.belowValue;
-        };
     
         const isFeedChanged = (current, original) => {
             return JSON.stringify(current) !== JSON.stringify(original);
@@ -143,54 +130,23 @@ const UpdatePlant = () => {
         const handleFeedUpdate = async (type) => {
             const current = plantData[type];
             const original = plantOrigin[type];
-            const feedExists = !!original?.key;
     
-            if (!feedExists) {
-                if (!shouldCreateFeedAndRule(current)) return; // không nhập thì bỏ qua
-    
-                const isValid = current.floor && current.ceiling && current.outputFeedAbove && current.outputFeedBelow && current.aboveValue && current.belowValue;
-                if (!isValid) {
-                    alert(`Bạn chưa nhập đủ thông tin về ${type === "temperature" ? "nhiệt độ" : type === "humidity" ? "độ ẩm" : "ánh sáng"}!`);
-                    throw new Error("Missing data");
-                }
-    
-                await CreateFeeds({
-                    groupName: plantData.key,
-                    feedName: current.name,
-                    feedFloor: current.floor,
-                    feedCeiling: current.ceiling,
-                    token,
-                });
-    
-                await CreateRule({
-                    inputFeed: current.key,
-                    ceiling: current.ceiling,
-                    floor: current.floor,
-                    outputFeedAbove: current.outputFeedAbove,
-                    outputFeedBelow: current.outputFeedBelow,
-                    aboveValue: current.aboveValue,
-                    belowValue: current.belowValue,
-                    token,
-                });
-    
-            } else {
-                if (!isFeedChanged(current, original)) {
-                    alert(`${type === "temperature" ? "Nhiệt độ" : type === "humidity" ? "Độ ẩm" : "Ánh sáng"} không có thay đổi gì.`);
-                    return;
-                }
-    
-                await ModifyRule({
-                    inputOriginFeed: original.key,
-                    inputChangeFeed: current.key,
-                    ceiling: current.ceiling,
-                    floor: current.floor,
-                    outputFeedAbove: current.outputFeedAbove,
-                    outputFeedBelow: current.outputFeedBelow,
-                    aboveValue: current.aboveValue,
-                    belowValue: current.belowValue,
-                    token,
-                });
+            if (!isFeedChanged(current, original)) {
+                alert(`${type === "temperature" ? "Nhiệt độ" : type === "humidity" ? "Độ ẩm" : "Ánh sáng"} không có thay đổi gì.`);
+                return;
             }
+
+            await ModifyRule({
+                inputOriginFeed: original.key,
+                inputChangeFeed: current.key,
+                ceiling: current.ceiling,
+                floor: current.floor,
+                outputFeedAbove: current.outputFeedAbove,
+                outputFeedBelow: current.outputFeedBelow,
+                aboveValue: current.aboveValue,
+                belowValue: current.belowValue,
+            });
+            
         };
     
         try {
@@ -198,7 +154,6 @@ const UpdatePlant = () => {
                 const res = await ModifyGroup({
                     groupOriginName: plantOrigin.key,
                     groupChangeName: plantData.name,
-                    token: token
                 });
     
                 const updateFeedKey = (feed) => {
@@ -235,7 +190,6 @@ const UpdatePlant = () => {
                             groupName: res.key,
                             feedName: feed.name,
                             feedKey: feed.key,
-                            token,
                         });
                     }
                 }
@@ -305,7 +259,7 @@ const UpdatePlant = () => {
                                     variant="outlined"
                                     type="number"
                                     name="temperature.floor"
-                                    value={plantData?.temperature?.floor}
+                                    value={plantData.temperature.floor}
                                     onChange={handleChange}
                                     placeholder="Tối thiểu"
                                     color="success"

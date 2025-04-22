@@ -1,17 +1,17 @@
-import React, { createContext, useContext, useRef, useState } from "react";
+import React, { createContext, useContext, useRef, useState, useCallback } from "react";
 
 const WebSocketContext = createContext();
 
 export const WebSocketProvider = ({ children }) => {
   const socketsRef = useRef({});
   const [deviceData, setDeviceData] = useState({});
-  const [deviceHistory, setDeviceHistory] = useState({});
   const [version, setVersion] = useState(0);
 
-  const initWebSockets = (deviceKeys, token) => {
+  const initWebSockets = useCallback((deviceKeys) => {
     (Array.isArray(deviceKeys) ? deviceKeys : []).forEach((key) => {
       if (socketsRef.current[key]) return;
 
+      const token = localStorage.getItem("accessToken");
       const query = `key=${key}&token=${token}`;
       const ws = new WebSocket(`ws://localhost:8080/ws?${query}`);
 
@@ -20,77 +20,66 @@ export const WebSocketProvider = ({ children }) => {
       };
 
       ws.onerror = (err) => {
-        console.error(`WebSocket error for ${key}:`, err);
+        console.error(`❌ WebSocket error for ${key}:`, err);
       };
 
       ws.onclose = () => {
-        console.log(`WebSocket closed for ${key}`);
+        console.log(`🛑 WebSocket closed for ${key}`);
       };
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          const [plantKey, sensorKey] = key.split("."); // VD: ["cay-tao", "temp"]
-      
-          // ✅ Cập nhật deviceData
-          setDeviceData((prev) => {
-            const newPlantData = {
-              ...(prev[plantKey] || {}),
-              [sensorKey]: data,
-            };
-          
-            return {
-              ...prev,
-              [plantKey]: newPlantData, // <- new object reference
-            };
-          });
-          
-          // ✅ Cập nhật deviceHistory
-          setDeviceHistory((prev) => ({
+          const [plantKey, sensorKey] = key.split(".");
+
+          setDeviceData((prev) => ({
             ...prev,
             [plantKey]: {
               ...(prev[plantKey] || {}),
-              [sensorKey]: [
-                ...((prev[plantKey]?.[sensorKey]) || []).slice(-49),
-                data,
-              ]
-            }
+              [sensorKey]: data,
+            },
           }));
 
           setVersion((prev) => prev + 1);
-
         } catch (err) {
-          console.error(`❌ Error parsing message from ${key}`, err);
+          console.error(`❌ Error parsing message from ${key}:`, err);
         }
       };
-      
-      
+
       socketsRef.current[key] = ws;
     });
-  };
+  }, []);
 
-  const checkConnect = (deviceKey) => {
+  const checkConnect = useCallback((deviceKey) => {
     const socket = socketsRef.current[deviceKey];
-    if (socket && socket.readyState === WebSocket.OPEN) return true
-    return false
-  }
+    return socket?.readyState === WebSocket.OPEN;
+  }, []);
 
-  const sendToDevice = (deviceKey, value) => {
+  const sendToDevice = useCallback((deviceKey, value) => {
     const socket = socketsRef.current[deviceKey];
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (socket?.readyState === WebSocket.OPEN) {
       const msg = JSON.stringify({ value });
-      console.log(msg)
+      console.log(`📤 Sending to ${deviceKey}:`, msg);
       socket.send(msg);
     }
-  };
+  }, []);
 
-  const closeAll = () => {
+  const closeAll = useCallback(() => {
     Object.values(socketsRef.current).forEach((ws) => ws.close());
     socketsRef.current = {};
-  };
+  }, []);
 
   return (
-    <WebSocketContext.Provider value={{ version, deviceData, deviceHistory, initWebSockets, sendToDevice, closeAll, checkConnect }}>
+    <WebSocketContext.Provider
+      value={{
+        deviceData,
+        initWebSockets,
+        sendToDevice,
+        closeAll,
+        checkConnect,
+        version
+      }}
+    >
       {children}
     </WebSocketContext.Provider>
   );

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { FormControl, Select, MenuItem, Typography, Grid, Alert, Button, Switch, TableContainer, TableBody, TableCell, TableHead, TableRow, Table } from "@mui/material";
+import { Card, FormControl, Select, MenuItem, Typography, Grid, Alert, Button, Switch, TableContainer, TableBody, TableCell, TableHead, TableRow, Table, CircularProgress } from "@mui/material";
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import { LineChart } from "@mui/x-charts/LineChart";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -100,17 +100,15 @@ const Parameter = () => {
     const location = useLocation();
     const plant = location.state?.plant || null;
 
-    
-    
     const [plants, setPlants] = useState([]);
     const [selectedPlant, setSelectedPlant] = React.useState(plant);
     
-    const { deviceData, sendToDevice, initWebSockets, checkConnect} = useWebSocket()
-
+    const { sendToDevice, initWebSockets, checkConnect, version} = useWebSocket()
+    const [loading, setLoading] = useState(0)
     useEffect(() => {
         const fetchPlants = async () => {
+            setLoading(loading)
             try {
-                const token =  localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 const plantData = filteredGroups.length > 0 ? await Promise.all(
@@ -129,7 +127,7 @@ const Parameter = () => {
             
                     await Promise.all(
                         group.feeds.map(async (feed) => {
-                            if(!checkConnect(feed.key)) initWebSockets([feed.key], token) //bật WebSocket lên cho feed này
+                            if(!checkConnect(feed.key)) initWebSockets([feed.key]) //bật WebSocket lên cho feed này
                             
                             const response = await api.get("/user/info");
 
@@ -147,7 +145,7 @@ const Parameter = () => {
                                     id: feed.id,
                                     name: feed.name,
                                     key: feed.key,
-                                    status: resData != null && values[values.length - 1] > 0,
+                                    status: resData != null && values[0] > 0,
                                 };
                             } 
                             else if (feed.name === "pump") {
@@ -158,7 +156,7 @@ const Parameter = () => {
                                     id: feed.id,
                                     name: feed.name,
                                     key: feed.key,
-                                    status: resData != null && values[values.length - 1] > 0,
+                                    status: resData != null && values[0] > 0,
                                 };
                             } 
                             else {
@@ -232,10 +230,12 @@ const Parameter = () => {
                 
             } catch (err) {
             console.error("❌ Error fetching groups:", err);
+            } finally {
+                setLoading(loading + 1)
             }
         };
         fetchPlants();
-    }, [plant, checkConnect, initWebSockets, selectedPlant, deviceData])
+    }, [version])
     
     const tempValue = selectedPlant?.temperature?.values[0] ?? -1;
     const humidityValue = selectedPlant?.humidity?.values[0] ?? -1;
@@ -277,7 +277,7 @@ const Parameter = () => {
                 };
     
                 // Gửi lệnh đến thiết bị
-                sendToDevice(plant[type].key, event.target.checked ? "1" : "0");
+                sendToDevice(plant[type].key, event.target.checked ? "1.0" : "0.0");
                 
     
                 return {
@@ -291,357 +291,349 @@ const Parameter = () => {
         setSelectedPlant(updatedPlants.find(plant => plant.id === selectedPlant.id))
     };
 
-    //----------------Liên quan đến table------------
-    const [scroll, setScroll] = React.useState(true);
-
-    const handleScroll = (event) => {
-        setScroll(event.target.checked);
-    };
-
     const [numButton, setNumButton] = useState(1)
 
     // Format thời gian dạng "HH:mm" hoặc "Hh"
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
-            <Grid container spacing={1} style={{padding: "0 4rem", height: window.innerWidth > 768 ? "80vh" : "fit-content" }}>
-                <Grid size={{xs: 12, md: 8}}>
-                    <FormControl fullWidth style={{ marginBottom: "10px", width: "13rem" }} >
-                        <Typography fontWeight="bold" style={{marginBottom: "0.3rem"}}>Cây trồng:</Typography>
-                        <Select
-                            value={selectedPlant?.id ?? ""}
-                            onChange={(e) => {
-                                const plantId = e.target.value;
-                                const plantObj = plants.find(p => p.id === plantId);
-                                setSelectedPlant(plantObj);
-                            }}
-                            size="small"
-                        >
-                            {plants.map((plant) => (
-                                <MenuItem key={plant.id} value={plant.id}>
-                                    {plant.name} - {plant.id}
-                                </MenuItem>
-                            ))}
-                        </Select>
+            { loading >= 1 ? plants.length >= 1 ? (
+                    <>
+                        <Grid container spacing={1} style={{padding: "0 4rem", height: window.innerWidth > 768 ? "80vh" : "fit-content" }}>
+                            <Grid size={{xs: 12, md: 8}}>
+                                <FormControl fullWidth style={{ marginBottom: "10px", width: "13rem" }} >
+                                    <Typography fontWeight="bold" style={{marginBottom: "0.3rem"}}>Cây trồng:</Typography>
+                                    <Select
+                                        value={selectedPlant?.id ?? ""}
+                                        onChange={(e) => {
+                                            const plantId = e.target.value;
+                                            const plantObj = plants.find(p => p.id === plantId);
+                                            setSelectedPlant(plantObj);
+                                        }}
+                                        size="small"
+                                    >
+                                        {plants.map((plant) => (
+                                            <MenuItem key={plant?.id} value={plant?.id}>
+                                                {plant?.name} - {plant?.id}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
 
-                    </FormControl>
-                    <Grid container>
-                        <Grid 
-                            size={{xs: 12, md: 5}} 
-                            container 
-                            spacing={1}
-                        >
-                            <Grid size={12}>
-                                <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
-                                    Độ ẩm đất
-                                </Typography>
-                            </Grid>
-                            <div className="d-flex align-items-center justify-content-start">
-                                <Grid  
-                                    size={{xs: 12, md: 6}} style={{marginRight: "0.5rem"}}
-                                >
-                                    <div 
-                                        style={{
-                                            width: "10rem",
-                                            height: "10rem",
-                                        }}
+                                </FormControl>
+                                <Grid container>
+                                    <Grid 
+                                        size={{xs: 12, md: 5}} 
+                                        container 
+                                        spacing={1}
+                                    >
+                                        <Grid size={12}>
+                                            <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
+                                                Độ ẩm đất
+                                            </Typography>
+                                        </Grid>
+                                        <div className="d-flex align-items-center justify-content-start">
+                                            <Grid  
+                                                size={{xs: 12, md: 6}} style={{marginRight: "0.5rem"}}
+                                            >
+                                                <div 
+                                                    style={{
+                                                        width: "10rem",
+                                                        height: "10rem",
+                                                    }}
 
-                                    >
-                                        <Gauge
-                                            value={humidityValue}
-                                            startAngle={-160}
-                                            endAngle={160}
-                                            innerRadius="70%"
-                                            outerRadius="100%"
-                                            style={{alignSelf: "center"}}
-                                            text={({value}) => `${value}%`}
-                                            sx= {{
-                                                [`& .${gaugeClasses.valueArc}`]: {
-                                                    fill: '#3eaef4',
-                                                },
-                                                [`& .${gaugeClasses.valueText}`]: {
-                                                    fontSize: 20,
-                                                    fill: '#3eaef4',
-                                                },
-                                            }}
-                                        />
-                                        <div style={{ display: "flex", justifyContent: "space-around", marginTop: "-10px" }}>
-                                            <span style={{ fontSize: "14px", color: "gray" }}>0</span>
-                                            <span style={{ fontSize: "14px", color: "gray" }}>100</span>
+                                                >
+                                                    <Gauge
+                                                        value={humidityValue}
+                                                        startAngle={-160}
+                                                        endAngle={160}
+                                                        innerRadius="70%"
+                                                        outerRadius="100%"
+                                                        style={{alignSelf: "center"}}
+                                                        text={({value}) => `${value}%`}
+                                                        sx= {{
+                                                            [`& .${gaugeClasses.valueArc}`]: {
+                                                                fill: '#3eaef4',
+                                                            },
+                                                            [`& .${gaugeClasses.valueText}`]: {
+                                                                fontSize: 20,
+                                                                fill: '#3eaef4',
+                                                            },
+                                                        }}
+                                                    />
+                                                    <div style={{ display: "flex", justifyContent: "space-around", marginTop: "-10px" }}>
+                                                        <span style={{ fontSize: "14px", color: "gray" }}>0</span>
+                                                        <span style={{ fontSize: "14px", color: "gray" }}>100</span>
+                                                    </div>
+                                                </div>
+                                            </Grid>
+                                            <Grid size={{xs: 12, md: 6}} className="d-flex align-items-center justify-content-center" style={{marginTop: "1rem", marginLeft: "1.3rem",}}>
+                                                <Button
+                                                    variant="contained"
+                                                    sx={{
+                                                        width: 90,
+                                                        height: 90,
+                                                        borderRadius: "50%",
+                                                        fontSize: 16,
+                                                        fontWeight: "bold",
+                                                        textTransform: "none",
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        backgroundColor: "#3eaef4",
+                                                        color: "black"
+                                                    }}
+                                                    onClick={() => {
+                                                        const isPumpOn = selectedPlant?.pump?.status;
+                                                        sendToDevice(selectedPlant.pump.key, isPumpOn ? "0.0" : "1.0");
+                                                
+                                                        const updatedPlants = plants.map((plant) => {
+                                                            if (plant.id === selectedPlant.id) {
+                                                                return {
+                                                                    ...plant,
+                                                                    pump: {
+                                                                        ...plant.pump,
+                                                                        status: !isPumpOn,
+                                                                    },
+                                                                };
+                                                            }
+                                                            return plant;
+                                                        });
+                                                        setPlants(updatedPlants);
+                                                        setSelectedPlant(updatedPlants.find(plant => plant.id === selectedPlant.id))
+                                                    }}
+                                                >
+                                                    {selectedPlant?.pump?.status ? "Tắt bơm" : "Tưới tiêu"}
+                                                </Button>
+                                            </Grid>
                                         </div>
-                                    </div>
+                                        
+                                    </Grid>
+                                    <Grid size={{xs: 12, md: 7}}  container spacing={1} >
+                                        <Grid size={12}>
+                                            <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
+                                                Ánh sáng
+                                            </Typography>
+                                        </Grid>
+                                        <div className="d-flex align-items-center justify-content-center">
+                                            <Grid size={{xs: 12, md: 12}}>
+                                                <div 
+                                                    style={{
+                                                        width: "10rem",
+                                                        height: "10rem",
+                                                    }}
+                                                >
+                                                    <Gauge
+                                                        value={lightValue}
+                                                        startAngle={-160}
+                                                        endAngle={160}
+                                                        innerRadius="70%"
+                                                        outerRadius="100%"
+                                                        style={{alignSelf: "center"}}
+                                                        text={({value}) => `${value}%`}
+                                                        sx= {{
+                                                            [`& .${gaugeClasses.valueArc}`]: {
+                                                                fill: '#F2FF00',
+                                                            },
+                                                            [`& .${gaugeClasses.valueText}`]: {
+                                                                fontSize: 20,
+                                                                fill: '#F2FF00',
+                                                            },
+                                                        }}
+                                                    />
+                                                    <div style={{ display: "flex", justifyContent: "space-around", marginTop: "-10px" }}>
+                                                        <span style={{ fontSize: "14px", color: "gray" }}>0</span>
+                                                        <span style={{ fontSize: "14px", color: "gray" }}>100</span>
+                                                    </div>
+                                                </div>
+                                            </Grid>
+                                        </div>
+                                        
+                                    </Grid>
                                 </Grid>
-                                <Grid size={{xs: 12, md: 6}} className="d-flex align-items-center justify-content-center" style={{marginTop: "1rem", marginLeft: "1.3rem",}}>
-                                    <Button
-                                        variant="contained"
-                                        sx={{
-                                            width: 90,
-                                            height: 90,
-                                            borderRadius: "50%",
-                                            fontSize: 16,
-                                            fontWeight: "bold",
-                                            textTransform: "none",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            backgroundColor: "#3eaef4",
-                                            color: "black"
-                                        }}
-                                        onClick={() => {
-                                            const isPumpOn = selectedPlant?.pump?.status;
-                                            sendToDevice(selectedPlant.pump.key, isPumpOn ? "0" : "1");
-                                    
-                                            const updatedPlants = plants.map((plant) => {
-                                                if (plant.id === selectedPlant.id) {
-                                                    return {
-                                                        ...plant,
-                                                        pump: {
-                                                            ...plant.pump,
-                                                            status: !isPumpOn,
-                                                        },
-                                                    };
-                                                }
-                                                return plant;
-                                            });
-                                            setPlants(updatedPlants);
-                                            setSelectedPlant(updatedPlants.find(plant => plant.id === selectedPlant.id))
-                                        }}
-                                    >
-                                        {selectedPlant?.pump?.status ? "Tắt bơm" : "Tưới tiêu"}
-                                    </Button>
+                                <Grid container spacing={1} style={{marginTop: "2rem"}}>
+                                    <Grid size={{xs: 12, md: 5}} container spacing={2}>
+                                        <Grid size={12}>
+                                            <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
+                                                Nhiệt độ
+                                            </Typography>
+                                        </Grid>
+                                        <div className="d-flex align-items-center justify-content-start">
+                                            <Grid size={{xs: 12, md: 6}} style={{marginRight: "0.5rem"}}>
+                                                <div 
+                                                    style={{
+                                                        width: "10rem",
+                                                        height: "10rem",
+                                                    }}
+                                                >
+                                                    <Gauge
+                                                        value={tempValue} 
+                                                        startAngle={-160}
+                                                        endAngle={160}
+                                                        innerRadius="70%"
+                                                        outerRadius="100%"
+                                                        style={{alignSelf: "center"}}
+                                                        text={({value}) => `${value}°C`}
+                                                        sx= {{
+                                                            [`& .${gaugeClasses.valueArc}`]: {
+                                                                fill: '#00FF26',
+                                                            },
+                                                            [`& .${gaugeClasses.valueText}`]: {
+                                                                fontSize: 20,
+                                                                fill: '#00FF26',
+                                                            },
+                                                        }}
+                                                    />
+                                                    <div style={{ display: "flex", justifyContent: "space-around", marginTop: "-10px" }}>
+                                                        <span style={{ fontSize: "14px", color: "gray" }}>0</span>
+                                                        <span style={{ fontSize: "14px", color: "gray" }}>40</span>
+                                                    </div>
+                                                </div>
+                                            </Grid>
+                                            <Grid size={{xs: 12, md: 6}} className="d-flex align-items-center justify-content-center" style={{marginTop: "1rem"}}>
+                                                <Button
+                                                    variant="contained"
+                                                    sx={{
+                                                        width: 90,
+                                                        height: 90,
+                                                        borderRadius: "50%",
+                                                        fontSize: 16,
+                                                        fontWeight: "bold",
+                                                        textTransform: "none",
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        backgroundColor: "#00FF26",
+                                                        color: "black",
+                                                        marginLeft: "1.3rem",
+                                                    }}
+                                                    onClick={() => {
+                                                        const isFanOn = selectedPlant?.fan?.status;
+                                                        sendToDevice(selectedPlant.fan.key, isFanOn ? "0.0" : "1.0");
+                                                
+                                                        const updatedPlants = plants.map((plant) => {
+                                                            if (plant.id === selectedPlant.id) {
+                                                                return {
+                                                                    ...plant,
+                                                                    fan: {
+                                                                        ...plant.fan,
+                                                                        status: !isFanOn,
+                                                                    },
+                                                                };
+                                                            }
+                                                            return plant;
+                                                        });
+                                                        setPlants(updatedPlants);
+                                                        setSelectedPlant(updatedPlants.find(plant => plant.id === selectedPlant.id))
+                                                    }}
+                                                >
+                                                    {selectedPlant?.fan?.status ? "Tắt quạt" : "Làm mát"}
+                                                </Button>
+                                            </Grid>
+                                        </div>
+                                    </Grid>
                                 </Grid>
-                            </div>
-                            
-                        </Grid>
-                        <Grid size={{xs: 12, md: 7}}  container spacing={1} >
-                            <Grid size={12}>
-                                <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
-                                    Ánh sáng
-                                </Typography>
                             </Grid>
-                            <div className="d-flex align-items-center justify-content-start">
-                                <Grid size={{xs: 12, md: 6}}>
-                                    <div 
-                                        style={{
-                                            width: "10rem",
-                                            height: "10rem",
-                                        }}
+                            <Grid size={{xs: 12, md: 4}} container spacing={1} padding={2} className="d-flex flex-column">
+                                <Grid size={12} style={{margin: "0 3rem"}}>
+                                    <Typography variant="h6" fontWeight="bold" style={{marginBottom: "0.7rem"}}>
+                                        {selectedPlant?.id || "N/A"} : {selectedPlant?.name || "N/A"}
+                                    </Typography>
+                                    <Typography variant="body1" style={{marginBottom: "0.1rem"}}>
+                                        Nhiệt độ phù hợp: {selectedPlant?.temperature?.floor || "N/A"}°C - {selectedPlant?.temperature?.ceiling || "N/A"}°C
+                                    </Typography>
+                                    <Typography variant="body1" style={{marginBottom: "0.1rem"}}>
+                                        Độ ẩm phù hợp: {selectedPlant?.humidity?.floor || "N/A"}% - {selectedPlant?.humidity?.ceiling || "N/A"}%
+                                    </Typography>
+                                    <Typography variant="body1" style={{marginBottom: "0.1rem"}}>
+                                        Ánh sáng phù hợp: {selectedPlant?.light?.floor || "N/A"}% - {selectedPlant?.light?.ceiling || "N/A"}%
+                                    </Typography>
+                                    <Typography variant="body2" color={notify === "Bình thường" ? "success" : "error"} mt={1}>
+                                        <Alert severity={notify === "Bình thường" ? "success" : "error"} style = {{padding: "0 1rem", width: "20rem", maxHeight: "3rem"}}>{notify}</Alert>
+                                    </Typography>
+                                </Grid>
+                                <Grid size={12} style={{height: "fit-content"}}>
+                                    <TableContainer 
+                                        style={{borderRadius: "1rem", height: "65vh",}}
                                     >
-                                        <Gauge
-                                            value={lightValue}
-                                            startAngle={-160}
-                                            endAngle={160}
-                                            innerRadius="70%"
-                                            outerRadius="100%"
-                                            style={{alignSelf: "center"}}
-                                            text={({value}) => `${value}%`}
-                                            sx= {{
-                                                [`& .${gaugeClasses.valueArc}`]: {
-                                                    fill: '#F2FF00',
-                                                },
-                                                [`& .${gaugeClasses.valueText}`]: {
-                                                    fontSize: 20,
-                                                    fill: '#F2FF00',
-                                                },
-                                            }}
-                                        />
-                                        <div style={{ display: "flex", justifyContent: "space-around", marginTop: "-10px" }}>
-                                            <span style={{ fontSize: "14px", color: "gray" }}>0</span>
-                                            <span style={{ fontSize: "14px", color: "gray" }}>100</span>
-                                        </div>
-                                    </div>
+                                        <Table stickyHeader aria-label="customized table" >
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell style={{fontWeight: "600", textAlign: "center"}}>Mã thiết bị</TableCell>
+                                                    <TableCell style={{fontWeight: "600", textAlign: "center"}}>Tên thiết bị</TableCell>
+                                                    <TableCell style={{fontWeight: "600", textAlign: "center"}}>Trạng thái</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                <TableRow key={selectedPlant?.temperature?.id}>
+                                                    <TableCell style={{textAlign: "center"}}>{selectedPlant?.fan?.key}</TableCell>
+                                                    <TableCell style={{textAlign: "center"}}>Quạt làm mát</TableCell>
+                                                    <TableCell style={{textAlign: "center"}}>
+                                                        <Switch
+                                                            checked={selectedPlant?.fan?.status}
+                                                            onChange={(e) => handleChangeSwitch(e, "fan")}
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow key={selectedPlant?.humidity?.id}>
+                                                    <TableCell style={{textAlign: "center"}}>{selectedPlant?.pump?.key}</TableCell>
+                                                    <TableCell style={{textAlign: "center"}}>Máy bơm nước</TableCell>
+                                                    <TableCell style={{textAlign: "center"}}>
+                                                        <Switch
+                                                            checked={selectedPlant?.pump?.status}
+                                                            onChange={(e) => handleChangeSwitch(e, "pump")}
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
                                 </Grid>
-                            
-                                <Grid 
-                                    size={{xs: 12, md: 8}} 
-                                    className="d-flex align-items-center justify-content-between"
-                                    style={{marginLeft: "1.3rem", marginTop: "1rem"}}
-                                >
-                                    <Typography>Thả màn</Typography>
-                                    <Switch
-                                        checked={scroll}
-                                        onChange={handleScroll}
-                                        color="warning"
-                                    />
-                                    <Typography>Cuốn màn</Typography>
-                                </Grid>
-                            </div>
-                            
-                        </Grid>
-                    </Grid>
-                    <Grid container spacing={1} style={{marginTop: "2rem"}}>
-                        <Grid size={{xs: 12, md: 5}} container spacing={2}>
-                            <Grid size={12}>
-                                <Typography variant="body1" fontWeight="bold" style={{ alignSelf: "flex-start" }}>
-                                    Nhiệt độ
-                                </Typography>
                             </Grid>
-                            <div className="d-flex align-items-center justify-content-start">
-                                <Grid size={{xs: 12, md: 6}} style={{marginRight: "0.5rem"}}>
-                                    <div 
-                                        style={{
-                                            width: "10rem",
-                                            height: "10rem",
-                                        }}
-                                    >
-                                        <Gauge
-                                            value={tempValue} 
-                                            startAngle={-160}
-                                            endAngle={160}
-                                            innerRadius="70%"
-                                            outerRadius="100%"
-                                            style={{alignSelf: "center"}}
-                                            text={({value}) => `${value}°C`}
-                                            sx= {{
-                                                [`& .${gaugeClasses.valueArc}`]: {
-                                                    fill: '#00FF26',
-                                                },
-                                                [`& .${gaugeClasses.valueText}`]: {
-                                                    fontSize: 20,
-                                                    fill: '#00FF26',
-                                                },
-                                            }}
-                                        />
-                                        <div style={{ display: "flex", justifyContent: "space-around", marginTop: "-10px" }}>
-                                            <span style={{ fontSize: "14px", color: "gray" }}>0</span>
-                                            <span style={{ fontSize: "14px", color: "gray" }}>40</span>
-                                        </div>
-                                    </div>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 6}} className="d-flex align-items-center justify-content-center" style={{marginTop: "1rem"}}>
-                                    <Button
-                                        variant="contained"
-                                        sx={{
-                                            width: 90,
-                                            height: 90,
-                                            borderRadius: "50%",
-                                            fontSize: 16,
-                                            fontWeight: "bold",
-                                            textTransform: "none",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            backgroundColor: "#00FF26",
-                                            color: "black",
-                                            marginLeft: "1.3rem",
-                                        }}
-                                        onClick={() => {
-                                            const isFanOn = selectedPlant?.fan?.status;
-                                            sendToDevice(selectedPlant.fan.key, isFanOn ? "0" : "1");
-                                    
-                                            const updatedPlants = plants.map((plant) => {
-                                                if (plant.id === selectedPlant.id) {
-                                                    return {
-                                                        ...plant,
-                                                        fan: {
-                                                            ...plant.fan,
-                                                            status: !isFanOn,
-                                                        },
-                                                    };
-                                                }
-                                                return plant;
-                                            });
-                                            setPlants(updatedPlants);
-                                            setSelectedPlant(updatedPlants.find(plant => plant.id === selectedPlant.id))
-                                        }}
-                                    >
-                                        {selectedPlant?.fan?.status ? "Tắt quạt" : "Làm mát"}
-                                    </Button>
-                                </Grid>
-                            </div>
                         </Grid>
+                        <Grid container spacing={1} padding={2}>
+                            <Grid size={{xs: 12, md: 3}} className="d-flex flex-column align-items-center justify-content-start" style={{padding: "0 4rem"}}>
+                                {ButtonList.map((item, index) => (
+                                    <Button
+                                        key={index}
+                                        variant="outlined"
+                                        sx={{
+                                            height: "3rem",
+                                            width: "10rem",
+                                            margin: "0.5rem",
+                                            borderRadius: "10px",
+                                            textTransform: "none",
+                                            color: numButton === index + 1 ? "white" : "black",
+                                            backgroundColor: index + 1 === 2 ? "#42A5F5" : (index + 1 === 1 ? "#00FF26" : "#F2FF00"),
+                                            "&:hover": {
+                                                backgroundColor: numButton === index + 1 ? "#3eaef4" : "#f0f0f0",
+                                                color: numButton === index + 1 ? "white" : "#3eaef4",
+                                            },
+                                        }}
+                                        onClick={() => setNumButton(index + 1)}
+                                    >
+                                        {item.icon}
+                                        {item.name}
+                                    </Button>
+                                ))}
+                            </Grid>
+                            <Grid size={{xs: 12, md: 9}}>
+                                <Chart num={numButton} humidity={selectedPlant?.humidity?.values} temperature={selectedPlant?.temperature?.values} 
+                                light={selectedPlant?.light?.values} xLabelsTemp={selectedPlant?.temperature?.times} xLabelsPump={selectedPlant?.humidity?.times} 
+                                xLabelsLight={selectedPlant?.light?.times}/>
+                            </Grid>
+                        </Grid>
+                    </>
+                    ) : (
+                    <Grid item xs={12} className="d-flex align-items-start" style={{margin: "0 5rem"}}>
+                        <Typography variant="h6" color="text.secondary" textAlign="start">
+                            Chưa có cây trồng nào hết...
+                        </Typography>
                     </Grid>
-                </Grid>
-                <Grid size={{xs: 12, md: 4}} container spacing={1} padding={2} className="d-flex flex-column">
-                    <Grid size={12} style={{margin: "0 3rem"}}>
-                        <Typography variant="h6" fontWeight="bold" style={{marginBottom: "0.7rem"}}>
-                            {selectedPlant?.id || "N/A"} : {selectedPlant?.name || "N/A"}
-                        </Typography>
-                        <Typography variant="body1" style={{marginBottom: "0.1rem"}}>
-                            Nhiệt độ phù hợp: {selectedPlant?.temperature?.floor || "N/A"}°C - {selectedPlant?.temperature?.ceiling || "N/A"}°C
-                        </Typography>
-                        <Typography variant="body1" style={{marginBottom: "0.1rem"}}>
-                            Độ ẩm phù hợp: {selectedPlant?.humidity?.floor || "N/A"}% - {selectedPlant?.humidity?.ceiling || "N/A"}%
-                        </Typography>
-                        <Typography variant="body1" style={{marginBottom: "0.1rem"}}>
-                            Ánh sáng phù hợp: {selectedPlant?.light?.floor || "N/A"}% - {selectedPlant?.light?.ceiling || "N/A"}%
-                        </Typography>
-                        <Typography variant="body2" color={notify === "Bình thường" ? "success" : "error"} mt={1}>
-                            <Alert severity={notify === "Bình thường" ? "success" : "error"} style = {{padding: "0 1rem", width: "20rem", maxHeight: "3rem"}}>{notify}</Alert>
-                        </Typography>
-                    </Grid>
-                    <Grid size={12} style={{height: "fit-content"}}>
-                        <TableContainer 
-                            style={{borderRadius: "1rem", height: "65vh",}}
-                        >
-                            <Table stickyHeader aria-label="customized table" >
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell style={{fontWeight: "600", textAlign: "center"}}>Mã thiết bị</TableCell>
-                                        <TableCell style={{fontWeight: "600", textAlign: "center"}}>Tên thiết bị</TableCell>
-                                        <TableCell style={{fontWeight: "600", textAlign: "center"}}>Trạng thái</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    <TableRow key={selectedPlant?.temperature?.id}>
-                                        <TableCell style={{textAlign: "center"}}>{selectedPlant?.fan?.key}</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>Quạt làm mát</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>
-                                            <Switch
-                                                checked={selectedPlant?.fan?.status}
-                                                onChange={(e) => handleChangeSwitch(e, "fan")}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow key={selectedPlant?.humidity?.id}>
-                                        <TableCell style={{textAlign: "center"}}>{selectedPlant?.pump?.key}</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>Máy bơm nước</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>
-                                            <Switch
-                                                checked={selectedPlant?.pump?.status}
-                                                onChange={(e) => handleChangeSwitch(e, "pump")}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Grid>
-                </Grid>
-            </Grid>
-            <Grid container spacing={1} padding={2}>
-                <Grid size={{xs: 12, md: 3}} className="d-flex flex-column align-items-center justify-content-start" style={{padding: "0 4rem"}}>
-                    {ButtonList.map((item, index) => (
-                        <Button
-                            key={index}
-                            variant="outlined"
-                            sx={{
-                                height: "3rem",
-                                width: "10rem",
-                                margin: "0.5rem",
-                                borderRadius: "10px",
-                                textTransform: "none",
-                                color: numButton === index + 1 ? "white" : "black",
-                                backgroundColor: index + 1 === 2 ? "#42A5F5" : (index + 1 === 1 ? "#00FF26" : "#F2FF00"),
-                                "&:hover": {
-                                    backgroundColor: numButton === index + 1 ? "#3eaef4" : "#f0f0f0",
-                                    color: numButton === index + 1 ? "white" : "#3eaef4",
-                                },
-                            }}
-                            onClick={() => setNumButton(index + 1)}
-                        >
-                            {item.icon}
-                            {item.name}
-                        </Button>
-                    ))}
-                </Grid>
-                <Grid size={{xs: 12, md: 9}}>
-                    <Chart num={numButton} humidity={selectedPlant?.humidity?.values} temperature={selectedPlant?.temperature?.values} 
-                    light={selectedPlant?.light?.values} xLabelsTemp={selectedPlant?.temperature?.times} xLabelsPump={selectedPlant?.humidity?.times} 
-                    xLabelsLight={selectedPlant?.light?.times}/>
-                </Grid>
-            </Grid>
-            
+                ) : (
+                    <div className="d-flex align-items-center justify-content-center" style={{minHeight: "80vh"}}>
+                    <CircularProgress size="6rem" />
+                </div>
+                )}
         </LocalizationProvider>
     )
 }

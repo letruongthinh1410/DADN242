@@ -54,7 +54,6 @@ function TChu() {
   };
   const clearTokens = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
   };
   
   const handleLogin = async () => {

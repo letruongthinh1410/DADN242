@@ -65,19 +65,12 @@ const AddPlant = () => {
         e.preventDefault();
     
         const checkCondition = (data, label) => {
-            const hasAny = data.floor || data.ceiling || data.outputFeedAbove || data.outputFeedBelow || data.aboveValue || data.belowValue;
-            const isIncomplete = hasAny && (!data.floor || !data.ceiling || !data.outputFeedAbove || !data.outputFeedBelow || !data.aboveValue || !data.belowValue);
-    
-            if (hasAny && (data.floor === "-1" || data.ceiling === "-1")) {
+            if ((data.floor && data.floor === "-1") || (data.ceiling && data.ceiling === "-1")) {
                 return `Ngưỡng của ${label} không được để giá trị âm`;
             }
     
-            if (hasAny && Number(data.floor) > Number(data.ceiling)) {
+            if (data.floor && data.ceiling &&Number(data.floor) > Number(data.ceiling)) {
                 return `${label.charAt(0).toUpperCase() + label.slice(1)} tối đa không được nhỏ hơn tối thiểu`;
-            }
-    
-            if (isIncomplete) {
-                return `Bạn chưa nhập đủ thông tin về ${label}`;
             }
     
             return null;
@@ -121,13 +114,6 @@ const AddPlant = () => {
 
             // Xử lý nhiệt độ
             if (shouldCreateFeedAndRule(plantData.temperature)) {
-                await CreateFeeds({
-                    groupName: response,
-                    feedName: "temp",
-                    feedFloor: plantData.temperature.floor,
-                    feedCeiling: plantData.temperature.ceiling,
-                    token: token,
-                });
                 await CreateRule({
                     inputFeed: `${response.key}.temp`,
                     ceiling: plantData.temperature.ceiling,
@@ -142,13 +128,6 @@ const AddPlant = () => {
 
             // Xử lý độ ẩm
             if (shouldCreateFeedAndRule(plantData.humidity)) {
-                await CreateFeeds({
-                    groupName: response,
-                    feedName: "humidity",
-                    feedFloor: plantData.humidity.floor,
-                    feedCeiling: plantData.humidity.ceiling,
-                    token: token,
-                });
                 await CreateRule({
                     inputFeed: `${response.key}.humidity`,
                     ceiling: plantData.humidity.ceiling,
@@ -163,13 +142,6 @@ const AddPlant = () => {
 
             // Xử lý ánh sáng
             if (shouldCreateFeedAndRule(plantData.light)) {
-                await CreateFeeds({
-                    groupName: response,
-                    feedName: "light",
-                    feedFloor: plantData.light.floor,
-                    feedCeiling: plantData.light.ceiling,
-                    token: token,
-                });
                 await CreateRule({
                     inputFeed: `${response.key}.light`,
                     ceiling: plantData.light.ceiling,
@@ -181,21 +153,44 @@ const AddPlant = () => {
                     token: token,
                 });
             }
+            await CreateFeeds({
+                groupName: response,
+                feedName: "temp",
+                feedFloor: plantData.temperature.floor,
+                feedCeiling: plantData.temperature.ceiling,
+                token: token,
+            });
+
+            await CreateFeeds({
+                groupName: response,
+                feedName: "humidity",
+                feedFloor: plantData.humidity.floor,
+                feedCeiling: plantData.humidity.ceiling,
+                token: token,
+            });
+
+            await CreateFeeds({
+                groupName: response,
+                feedName: "light",
+                feedFloor: plantData.light.floor,
+                feedCeiling: plantData.light.ceiling,
+                token: token,
+            });
 
             
             await CreateFeeds({
                 groupName: response,
                 feedName: "fan",
-                feedFloor: 0,
-                feedCeiling: 1,
+                feedFloor: 0.0,
+                feedCeiling: 1.0,
                 token: token,
             })
 
             await CreateFeeds({
                 groupName: response,
                 feedName: "pump",
-                feedFloor: 0,
-                feedCeiling: 1,
+                feedFloor: 0.0,
+                feedCeiling: 1.0,
                 token: token,
             })
 
@@ -218,24 +213,6 @@ const AddPlant = () => {
         }
     }
 
-    const deviceOptions = [
-        { value: ".fan", label: "Quạt làm mát" },
-        { value: ".pump", label: "Máy bơm" }
-    ];
-    const getAvailableDevices = (currentFieldName) => {
-        const selectedDevices = [
-            plantData.temperature.outputFeedAbove,
-            plantData.temperature.outputFeedBelow,
-            plantData.humidity.outputFeedAbove,
-            plantData.humidity.outputFeedBelow,
-            plantData.light.outputFeedAbove,
-            plantData.light.outputFeedBelow
-        ].filter((d) => d && d !== currentFieldName);
-    
-        return deviceOptions.filter(device => !selectedDevices.includes(device.value));
-    };
-    
-    
     return (
         <div className="add-plant" style={{ margin: "1rem 4rem", padding: "1rem", border: "1px solid black", borderRadius: "1rem" }}>
             <Grid container spacing={2} className="d-flex flex-column align-items-center">
@@ -252,7 +229,6 @@ const AddPlant = () => {
                     />
                 </Grid>
                 <Grid item size={12} container spacing={2}>
-                    {/* Nhiệt độ phù hợp */}
                     <Grid item size={{xs: 12, md: 4}} container spacing={2} sx={{ backgroundColor: "#D0F4E0", padding: "1rem", borderRadius: "8px" }}>
                         <Grid item xs={12}>
                             <Typography fontWeight="bold" fullWidth style={{ marginBottom: "1rem" , textAlign: "center", color: "#2C98A0" }}>
@@ -312,11 +288,9 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
-                                    
-                                   
-                                    </TextField>
+                                    <MenuItem value=".fan" disabled={plantData.temperature.outputFeedBelow === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.temperature.outputFeedBelow === ".pump"}>Máy bơm</MenuItem>
+                                </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
                                 <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
@@ -331,8 +305,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -351,9 +325,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
-                                   
+                                    <MenuItem value=".fan" disabled={plantData.temperature.outputFeedAbove === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.temperature.outputFeedAbove === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -369,8 +342,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
@@ -435,8 +408,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.humidity.outputFeedBelow === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.humidity.outputFeedBelow === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -452,8 +425,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -472,8 +445,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.humidity.outputFeedAbove === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.humidity.outputFeedAbove === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -490,12 +463,13 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
                     </Grid>
+                    {/* Ánh sáng phù hợp */}
                     <Grid item size={{xs: 12, md: 4}} container spacing={2} sx={{ backgroundColor: "#FFFBD6", padding: "1rem", borderRadius: "8px"}}>
                         <Grid item xs={12}>
                             <Typography fontWeight="bold" fullWidth style={{ marginBottom: "1rem", textAlign: "center", color: "#ECA611" }}>
@@ -555,8 +529,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.light.outputFeedBelow === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.light.outputFeedBelow === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -572,8 +546,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
@@ -592,8 +566,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
-                                    <MenuItem value=".pump">Máy bơm</MenuItem>
+                                    <MenuItem value=".fan" disabled={plantData.light.outputFeedAbove === ".fan"}>Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump" disabled={plantData.light.outputFeedAbove === ".pump"}>Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
@@ -609,8 +583,8 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value="1">Bật</MenuItem>
-                                    <MenuItem value="0">Tắt</MenuItem>
+                                    <MenuItem value="1.0">Bật</MenuItem>
+                                    <MenuItem value="0.0">Tắt</MenuItem>
                                 </TextField>
                             </Box>
                         </Grid>
