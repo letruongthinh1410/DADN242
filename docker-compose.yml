@@ -21,6 +21,8 @@ services:
       - .env
     networks:
       - app-network
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
 
 networks:
   app-network:

@@ -12,7 +12,7 @@ import { useWebSocket } from "../../WebSocketProvider";
 
 import { Thermometer, Droplets, Sun } from "lucide-react";
 import api from "../../../pages/api.jsx";
-const token =  localStorage.getItem("accessToken");
+
 
 const Chart = ({num, humidity, temperature, light, xLabelsTemp, xLabelsPump, xLabelsLight}) => {
     humidity = humidity?.slice().reverse();
@@ -99,20 +99,23 @@ const Parameter = () => {
     
     const location = useLocation();
     const plant = location.state?.plant || null;
+
+    
     
     const [plants, setPlants] = useState([]);
     const [selectedPlant, setSelectedPlant] = React.useState(plant);
     
-    const { deviceData, deviceHistory, sendToDevice, initWebSockets, checkConnect} = useWebSocket()
-    
+    const { deviceData, sendToDevice, initWebSockets, checkConnect} = useWebSocket()
+
     useEffect(() => {
         const fetchPlants = async () => {
             try {
+                const token =  localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 const plantData = filteredGroups.length > 0 ? await Promise.all(
                     filteredGroups.map(async (group) => {
-                    if (group.length < 4) return null;
+                    if (!group.feeds || group.feeds.length < 4) return null;
                     let plant = {
                         id: group.id,
                         name: group.name,
@@ -121,6 +124,7 @@ const Parameter = () => {
                         humidity: null,
                         light: null,
                         fan: null,
+                        pump: null,
                     };
             
                     await Promise.all(
@@ -133,8 +137,7 @@ const Parameter = () => {
                                 username: response.data.data.username, // username tạm
                                 feedKey: feed.key,
                                 apiKey: response.data.data.apikey,
-                            });
-
+                            })
 
                             if (feed.name === "fan") {
                                 const values = Array.isArray(resData)
@@ -147,8 +150,19 @@ const Parameter = () => {
                                     status: resData != null && values[values.length - 1] > 0,
                                 };
                             } 
+                            else if (feed.name === "pump") {
+                                const values = Array.isArray(resData)
+                                ? resData.map(item => Number(item.value))
+                                : []; //fan chỉ chứa giá trị 0 và 1
+                                plant.pump = {
+                                    id: feed.id,
+                                    name: feed.name,
+                                    key: feed.key,
+                                    status: resData != null && values[values.length - 1] > 0,
+                                };
+                            } 
                             else {
-                                //temp, pump, light chứa 0, 1 và các giá trị khác
+                                //temp, humidity, light chứa 0, 1 và các giá trị khác
                                 const formatFeedData = (resData) => {
                                     if (!Array.isArray(resData) || resData.length === 0) return { values: [], times: [] };
                                     
@@ -170,11 +184,9 @@ const Parameter = () => {
                                     };
                                 
                                 const { values, times } = formatFeedData(resData)
-                                const valuesWith0and1 = Array.isArray(resData) ? resData.map(item => Number(item.value)) : [];
                                 try {
                                     const ruleRes = await GetRule({
                                         feedName: feed.key,
-                                      
                                     });
                                     const ruleData = ruleRes.data[0];
                                         
@@ -188,13 +200,12 @@ const Parameter = () => {
                                         outputFeedBelow: ruleData?.outputFeedBelow ?? null,
                                         aboveValue: ruleData?.aboveValue ?? null,
                                         belowValue: ruleData?.belowValue ?? null,
-                                        status: resData != null && valuesWith0and1[valuesWith0and1.length - 1] > 0,
                                         values: values,
                                         times: times,
                                     }
                                     if (feed.name === "temp") {
                                         plant.temperature = feedObject;
-                                    } else if (feed.name === "pump") {
+                                    } else if (feed.name === "humidity") {
                                         plant.humidity = feedObject;
                                     } else if (feed.name === "light") {
                                         plant.light = feedObject;
@@ -210,33 +221,35 @@ const Parameter = () => {
                 })
             ) : []
                 setPlants(plantData);
-                if (!selectedPlant && plantData.length > 0) {
-                    setSelectedPlant(plantData[0]);
+                if (plantData.length > 0) {
+                    if (selectedPlant) {
+                        const updatedSelected = plantData.find(plant => plant.id === selectedPlant.id);
+                        setSelectedPlant(updatedSelected || plantData[0]); // nếu không tìm thấy, dùng cây đầu tiên
+                    } else {
+                        setSelectedPlant(plantData[0]); // lần đầu chưa có selectedPlant
+                    }
                 }
-                
                 
             } catch (err) {
             console.error("❌ Error fetching groups:", err);
             }
         };
         fetchPlants();
-    }, [deviceData, plant, checkConnect, initWebSockets, selectedPlant]);
-
+    }, [plant, checkConnect, initWebSockets, selectedPlant, deviceData])
+    
     const tempValue = selectedPlant?.temperature?.values[0] ?? -1;
     const humidityValue = selectedPlant?.humidity?.values[0] ?? -1;
     const lightValue = selectedPlant?.light?.values[0] ?? -1;
 
-    const notifyTemp = selectedPlant?.temperature?.status === false ? "Cảm biến nhiệt độ không hoạt động" : 
-        (tempValue != null && selectedPlant?.temperature?.floor != null && selectedPlant?.temperature?.ceiling != null 
+    const notifyTemp = tempValue != null && selectedPlant?.temperature?.floor != null && selectedPlant?.temperature?.ceiling != null 
             ? (tempValue < selectedPlant.temperature.floor
                 ? "Nhiệt độ thấp"
                 : tempValue > selectedPlant.temperature.ceiling
                 ? "Nhiệt độ cao"
                 : "Bình thường")
-            : "Không có dữ liệu");
+            : "Không có dữ liệu";
 
-    const notifyHumidity = selectedPlant?.humidity?.status === false ? "Cảm biến độ ẩm đất không hoạt động" :
-        humidityValue != null && selectedPlant?.humidity?.floor != null && selectedPlant?.humidity?.ceiling != null
+    const notifyHumidity = humidityValue != null && selectedPlant?.humidity?.floor != null && selectedPlant?.humidity?.ceiling != null
             ? (humidityValue < selectedPlant.humidity.floor
                 ? "Độ ẩm đất thấp"
                 : humidityValue > selectedPlant.humidity.ceiling
@@ -244,8 +257,7 @@ const Parameter = () => {
                 : "Bình thường")
             : "Không có dữ liệu";
 
-    const notifyLight = selectedPlant?.light?.status === false ? "Cảm biến ánh sáng không hoạt động" :
-        lightValue != null && selectedPlant?.light?.floor != null && selectedPlant?.light?.ceiling != null
+    const notifyLight = lightValue != null && selectedPlant?.light?.floor != null && selectedPlant?.light?.ceiling != null
             ? (lightValue < selectedPlant.light.floor
                 ? "Ánh sáng thấp"
                 : lightValue > selectedPlant.light.ceiling
@@ -287,20 +299,6 @@ const Parameter = () => {
     };
 
     const [numButton, setNumButton] = useState(1)
-    
-    const tempData = selectedPlant?.temperature?.values.length > 10 
-                    ? selectedPlant?.temperature?.values.slice(-10) 
-                    : selectedPlant?.temperature?.values ;
-    const pumpData = selectedPlant?.humidity?.values.length > 10 
-                    ? selectedPlant?.humidity?.values.slice(-10) 
-                    : selectedPlant?.humidity?.values ;
-    const lightData = selectedPlant?.light?.values.length > 10 
-                        ? selectedPlant?.light?.values.slice(-10) 
-                        : selectedPlant?.light?.values ;
-
-    const xLabelsTemp = selectedPlant?.temperature?.times;
-    const xLabelsPump = selectedPlant?.humidity?.times;
-    const xLabelsLight = selectedPlant?.light?.times;
 
     // Format thời gian dạng "HH:mm" hoặc "Hh"
 
@@ -390,8 +388,8 @@ const Parameter = () => {
                                             color: "black"
                                         }}
                                         onClick={() => {
-                                            const isPumpOn = selectedPlant?.humidity?.status;
-                                            sendToDevice(selectedPlant.humidity.key, isPumpOn ? "0" : "1");
+                                            const isPumpOn = selectedPlant?.pump?.status;
+                                            sendToDevice(selectedPlant.pump.key, isPumpOn ? "0" : "1");
                                     
                                             const updatedPlants = plants.map((plant) => {
                                                 if (plant.id === selectedPlant.id) {
@@ -586,32 +584,22 @@ const Parameter = () => {
                                 </TableHead>
                                 <TableBody>
                                     <TableRow key={selectedPlant?.temperature?.id}>
-                                        <TableCell style={{textAlign: "center"}}>{selectedPlant?.temperature?.key}</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>Cảm biến nhiệt độ</TableCell>
+                                        <TableCell style={{textAlign: "center"}}>{selectedPlant?.fan?.key}</TableCell>
+                                        <TableCell style={{textAlign: "center"}}>Quạt làm mát</TableCell>
                                         <TableCell style={{textAlign: "center"}}>
                                             <Switch
-                                                checked={selectedPlant?.temperature?.status}
-                                                onChange={(e) => handleChangeSwitch(e, "temperature")}
+                                                checked={selectedPlant?.fan?.status}
+                                                onChange={(e) => handleChangeSwitch(e, "fan")}
                                             />
                                         </TableCell>
                                     </TableRow>
                                     <TableRow key={selectedPlant?.humidity?.id}>
-                                        <TableCell style={{textAlign: "center"}}>{selectedPlant?.humidity?.key}</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>Cảm biến độ ẩm đất</TableCell>
+                                        <TableCell style={{textAlign: "center"}}>{selectedPlant?.pump?.key}</TableCell>
+                                        <TableCell style={{textAlign: "center"}}>Máy bơm nước</TableCell>
                                         <TableCell style={{textAlign: "center"}}>
                                             <Switch
-                                                checked={selectedPlant?.humidity?.status}
-                                                onChange={(e) => handleChangeSwitch(e, "humidity")}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow key={selectedPlant?.light?.id}>
-                                        <TableCell style={{textAlign: "center"}}>{selectedPlant?.light?.key}</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>Cảm biến ánh sáng</TableCell>
-                                        <TableCell style={{textAlign: "center"}}>
-                                            <Switch
-                                                checked={selectedPlant?.light?.status}
-                                                onChange={(e) => handleChangeSwitch(e, "light")}
+                                                checked={selectedPlant?.pump?.status}
+                                                onChange={(e) => handleChangeSwitch(e, "pump")}
                                             />
                                         </TableCell>
                                     </TableRow>
@@ -648,7 +636,9 @@ const Parameter = () => {
                     ))}
                 </Grid>
                 <Grid size={{xs: 12, md: 9}}>
-                    <Chart num={numButton} humidity={pumpData} temperature={tempData} light={lightData} xLabelsTemp={xLabelsTemp} xLabelsPump={xLabelsPump} xLabelsLight={xLabelsLight}/>
+                    <Chart num={numButton} humidity={selectedPlant?.humidity?.values} temperature={selectedPlant?.temperature?.values} 
+                    light={selectedPlant?.light?.values} xLabelsTemp={selectedPlant?.temperature?.times} xLabelsPump={selectedPlant?.humidity?.times} 
+                    xLabelsLight={selectedPlant?.light?.times}/>
                 </Grid>
             </Grid>
             

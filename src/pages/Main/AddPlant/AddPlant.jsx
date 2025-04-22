@@ -62,9 +62,40 @@ const AddPlant = () => {
     };
 
     const handleConfirmAddPlant = async (e) => {
-        e.preventDefault()
-        setOpenConfirm(true)
-    }
+        e.preventDefault();
+    
+        const checkCondition = (data, label) => {
+            const hasAny = data.floor || data.ceiling || data.outputFeedAbove || data.outputFeedBelow || data.aboveValue || data.belowValue;
+            const isIncomplete = hasAny && (!data.floor || !data.ceiling || !data.outputFeedAbove || !data.outputFeedBelow || !data.aboveValue || !data.belowValue);
+    
+            if (hasAny && (data.floor === "-1" || data.ceiling === "-1")) {
+                return `Ngưỡng của ${label} không được để giá trị âm`;
+            }
+    
+            if (hasAny && Number(data.floor) > Number(data.ceiling)) {
+                return `${label.charAt(0).toUpperCase() + label.slice(1)} tối đa không được nhỏ hơn tối thiểu`;
+            }
+    
+            if (isIncomplete) {
+                return `Bạn chưa nhập đủ thông tin về ${label}`;
+            }
+    
+            return null;
+        };
+    
+        const notifyTemp = checkCondition(plantData.temperature, "nhiệt độ");
+        const notifyHumidity = checkCondition(plantData.humidity, "độ ẩm đất");
+        const notifyLight = checkCondition(plantData.light, "ánh sáng");
+    
+        const notifyMessage = [notifyTemp, notifyHumidity, notifyLight].filter(Boolean).join(", ");
+    
+        if (notifyMessage) {
+            alert(notifyMessage);
+        } else {
+            setOpenConfirm(true);
+        }
+    };
+    
     
     const handleAddPlant = async (e) => {
         e.preventDefault();
@@ -74,41 +105,30 @@ const AddPlant = () => {
         //token tạm thời
         let response
         try {
-            response = await CreateGroup({
-                groupName: plantData.name,
-                token: token,
-            });
+            if (!plantData.name.trim()) {
+                alert("Bạn chưa nhập tên cây trồng!");
+                return;
+            } else {
+                response = await CreateGroup({
+                    groupName: plantData.name,
+                    token: token,
+                });
+            }
 
-            await CreateFeeds({
-                groupName: response,
-                feedName: "temp",
-                feedFloor: plantData.temperature.floor,
-                feedCeiling: plantData.temperature.ceiling,
-                token: token,
-            })
-            await CreateFeeds({
-                groupName: response,
-                feedName: "pump",
-                feedFloor: plantData.humidity.floor,
-                feedCeiling: plantData.humidity.ceiling,
-                token: token,
-            })
-            await CreateFeeds({
-                groupName: response,
-                feedName: "light",
-                feedFloor: plantData.light.floor,
-                feedCeiling: plantData.light.ceiling,
-                token: token,
-            })
-            await CreateFeeds({
-                groupName: response,
-                feedName: "fan",
-                feedFloor: 0,
-                feedCeiling: 1,
-                token: token,
-            })
-            
-            await CreateRule({
+            const shouldCreateFeedAndRule = (data) => {
+                return data.floor || data.ceiling || data.outputFeedAbove || data.outputFeedBelow || data.aboveValue || data.belowValue;
+            };            
+
+            // Xử lý nhiệt độ
+            if (shouldCreateFeedAndRule(plantData.temperature)) {
+                await CreateFeeds({
+                    groupName: response,
+                    feedName: "temp",
+                    feedFloor: plantData.temperature.floor,
+                    feedCeiling: plantData.temperature.ceiling,
+                    token: token,
+                });
+                await CreateRule({
                     inputFeed: `${response.key}.temp`,
                     ceiling: plantData.temperature.ceiling,
                     floor: plantData.temperature.floor,
@@ -117,25 +137,65 @@ const AddPlant = () => {
                     aboveValue: plantData.temperature.aboveValue,
                     belowValue: plantData.temperature.belowValue,
                     token: token,
-                })
-            await CreateRule({
-                inputFeed: `${response.key}.pump`,
-                ceiling: plantData.humidity.ceiling,
-                floor: plantData.humidity.floor,
-                outputFeedAbove: `${response.key}${plantData.humidity.outputFeedAbove}`,
-                outputFeedBelow: `${response.key}${plantData.humidity.outputFeedBelow}`,
-                aboveValue: plantData.humidity.aboveValue,
-                belowValue: plantData.humidity.belowValue,
+                });
+            }
+
+            // Xử lý độ ẩm
+            if (shouldCreateFeedAndRule(plantData.humidity)) {
+                await CreateFeeds({
+                    groupName: response,
+                    feedName: "humidity",
+                    feedFloor: plantData.humidity.floor,
+                    feedCeiling: plantData.humidity.ceiling,
+                    token: token,
+                });
+                await CreateRule({
+                    inputFeed: `${response.key}.humidity`,
+                    ceiling: plantData.humidity.ceiling,
+                    floor: plantData.humidity.floor,
+                    outputFeedAbove: `${response.key}${plantData.humidity.outputFeedAbove}`,
+                    outputFeedBelow: `${response.key}${plantData.humidity.outputFeedBelow}`,
+                    aboveValue: plantData.humidity.aboveValue,
+                    belowValue: plantData.humidity.belowValue,
+                    token: token,
+                });
+            }
+
+            // Xử lý ánh sáng
+            if (shouldCreateFeedAndRule(plantData.light)) {
+                await CreateFeeds({
+                    groupName: response,
+                    feedName: "light",
+                    feedFloor: plantData.light.floor,
+                    feedCeiling: plantData.light.ceiling,
+                    token: token,
+                });
+                await CreateRule({
+                    inputFeed: `${response.key}.light`,
+                    ceiling: plantData.light.ceiling,
+                    floor: plantData.light.floor,
+                    outputFeedAbove: `${response.key}${plantData.light.outputFeedAbove}`,
+                    outputFeedBelow: `${response.key}${plantData.light.outputFeedBelow}`,
+                    aboveValue: plantData.light.aboveValue,
+                    belowValue: plantData.light.belowValue,
+                    token: token,
+                });
+            }
+
+            
+            await CreateFeeds({
+                groupName: response,
+                feedName: "fan",
+                feedFloor: 0,
+                feedCeiling: 1,
                 token: token,
             })
-            await CreateRule({
-                inputFeed: `${response.key}.light`,
-                ceiling: plantData.light.ceiling,
-                floor: plantData.light.floor,
-                outputFeedAbove: `${response.key}${plantData.light.outputFeedAbove}`,
-                outputFeedBelow: `${response.key}${plantData.light.outputFeedBelow}`,
-                aboveValue: plantData.light.aboveValue,
-                belowValue: plantData.light.belowValue,
+
+            await CreateFeeds({
+                groupName: response,
+                feedName: "pump",
+                feedFloor: 0,
+                feedCeiling: 1,
                 token: token,
             })
 
@@ -219,10 +279,10 @@ const AddPlant = () => {
                                 />
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
-                                Cao hơn tối đa
+                                Nhiệt độ cao
                             </Typography>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Điều chỉnh thiết bị:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Chọn thiết bị:</Typography>
                                 <TextField
                                     select
                                     variant="outlined"
@@ -234,30 +294,32 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".temp">Cảm biến nhiệt độ</MenuItem>
-                                    <MenuItem value=".pump">Cảm biến độ ẩm đất</MenuItem>
-                                    <MenuItem value=".light">Cảm biến ánh sáng</MenuItem>
+                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump">Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Giá trị điều chỉnh:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
                                 <TextField
+                                    select
                                     variant="outlined"
-                                    type="number"
                                     name="temperature.aboveValue"
                                     value={plantData.temperature.aboveValue}
                                     onChange={handleChange}
-                                    placeholder="Nhập giá trị"
                                     color="success"
                                     size="small"
                                     sx={{ width: "10rem" }}
-                                />
+                                >
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value="1">Bật</MenuItem>
+                                    <MenuItem value="0">Tắt</MenuItem>
+                                </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
-                                Thấp hơn tối thiểu
+                                Nhiệt độ thấp
                             </Typography>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Điều chỉnh thiết bị:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Chọn thiết bị:</Typography>
                                 <TextField
                                     select
                                     variant="outlined"
@@ -269,24 +331,26 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".temp">Cảm biến nhiệt độ</MenuItem>
-                                    <MenuItem value=".pump">Cảm biến độ ẩm đất</MenuItem>
-                                    <MenuItem value=".light">Cảm biến ánh sáng</MenuItem>
+                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump">Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Giá trị điều chỉnh:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
                                 <TextField
+                                    select
                                     variant="outlined"
-                                    type="number"
                                     name="temperature.belowValue"
                                     value={plantData.temperature.belowValue}
                                     onChange={handleChange}
-                                    placeholder="Nhập giá trị"
                                     color="success"
                                     size="small"
                                     sx={{ width: "10rem" }}
-                                />
+                                >
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value="1">Bật</MenuItem>
+                                    <MenuItem value="0">Tắt</MenuItem>
+                                </TextField>
                             </Box>
                         </Grid>
                     </Grid>
@@ -335,10 +399,10 @@ const AddPlant = () => {
                                 />
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
-                                Cao hơn tối đa
+                                Độ ẩm cao
                             </Typography>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Điều chỉnh thiết bị:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Chọn thiết bị:</Typography>
                                 <TextField
                                     select
                                     variant="outlined"
@@ -350,30 +414,32 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".temp">Cảm biến nhiệt độ</MenuItem>
-                                    <MenuItem value=".pump">Cảm biến độ ẩm đất</MenuItem>
-                                    <MenuItem value=".light">Cảm biến ánh sáng</MenuItem>
+                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump">Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Giá trị điều chỉnh:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
                                 <TextField
+                                    select
                                     variant="outlined"
-                                    type="number"
                                     name="humidity.aboveValue"
                                     value={plantData.humidity.aboveValue}
                                     onChange={handleChange}
-                                    placeholder="Nhập giá trị"
                                     color="success"
                                     size="small"
                                     sx={{ width: "10rem" }}
-                                />
+                                >
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value="1">Bật</MenuItem>
+                                    <MenuItem value="0">Tắt</MenuItem>
+                                </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
-                                Thấp hơn tối thiểu
+                                Độ ẩm thấp
                             </Typography>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Điều chỉnh thiết bị:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Chọn thiết bị:</Typography>
                                 <TextField
                                     select
                                     variant="outlined"
@@ -385,16 +451,15 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".temp">Cảm biến nhiệt độ</MenuItem>
-                                    <MenuItem value=".pump">Cảm biến độ ẩm đất</MenuItem>
-                                    <MenuItem value=".light">Cảm biến ánh sáng</MenuItem>
+                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump">Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Giá trị điều chỉnh:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
                                 <TextField
+                                    select
                                     variant="outlined"
-                                    type="number"
                                     name="humidity.belowValue"
                                     value={plantData.humidity.belowValue}
                                     onChange={handleChange}
@@ -402,7 +467,11 @@ const AddPlant = () => {
                                     color="success"
                                     size="small"
                                     sx={{ width: "10rem" }}
-                                />
+                                >
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value="1">Bật</MenuItem>
+                                    <MenuItem value="0">Tắt</MenuItem>
+                                </TextField>
                             </Box>
                         </Grid>
                     </Grid>
@@ -450,10 +519,10 @@ const AddPlant = () => {
                                 />
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
-                                Cao hơn tối đa
+                                Ánh sáng cao
                             </Typography>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Điều chỉnh thiết bị:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Chọn thiết bị:</Typography>
                                 <TextField
                                     select
                                     variant="outlined"
@@ -465,30 +534,32 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".temp">Cảm biến nhiệt độ</MenuItem>
-                                    <MenuItem value=".pump">Cảm biến độ ẩm đất</MenuItem>
-                                    <MenuItem value=".light">Cảm biến ánh sáng</MenuItem>
+                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump">Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Giá trị điều chỉnh:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
                                 <TextField
+                                    select
                                     variant="outlined"
-                                    type="number"
                                     name="light.aboveValue"
                                     value={plantData.light.aboveValue}
                                     onChange={handleChange}
-                                    placeholder="Nhập giá trị"
                                     color="success"
                                     size="small"
                                     sx={{ width: "10rem" }}
-                                />
+                                >
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value="1">Bật</MenuItem>
+                                    <MenuItem value="0">Tắt</MenuItem>
+                                </TextField>
                             </Box>
                             <Typography fontWeight="bold" style={{ marginBottom: "1rem" }}>
-                                Thấp hơn tối thiểu
+                                Ánh sáng thấp
                             </Typography>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Điều chỉnh thiết bị:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Chọn thiết bị:</Typography>
                                 <TextField
                                     select
                                     variant="outlined"
@@ -500,24 +571,26 @@ const AddPlant = () => {
                                     sx={{ width: "10rem" }}
                                 >
                                     <MenuItem value="">Tuỳ chọn</MenuItem>
-                                    <MenuItem value=".temp">Cảm biến nhiệt độ</MenuItem>
-                                    <MenuItem value=".pump">Cảm biến độ ẩm đất</MenuItem>
-                                    <MenuItem value=".light">Cảm biến ánh sáng</MenuItem>
+                                    <MenuItem value=".fan">Quạt làm mát</MenuItem>
+                                    <MenuItem value=".pump">Máy bơm</MenuItem>
                                 </TextField>
                             </Box>
                             <Box display="flex" gap={1} alignItems="center" sx={{ marginBottom: "1rem" }}>
-                                <Typography fontWeight="bold" style={{ width: "9rem" }}>Giá trị điều chỉnh:</Typography>
+                                <Typography fontWeight="bold" style={{ width: "9rem" }}>On/off:</Typography>
                                 <TextField
+                                    select
                                     variant="outlined"
-                                    type="number"
                                     name="light.belowValue"
                                     value={plantData.light.belowValue}
                                     onChange={handleChange}
-                                    placeholder="Nhập giá trị"
                                     color="success"
                                     size="small"
                                     sx={{ width: "10rem" }}
-                                />
+                                >
+                                    <MenuItem value="">Tuỳ chọn</MenuItem>
+                                    <MenuItem value="1">Bật</MenuItem>
+                                    <MenuItem value="0">Tắt</MenuItem>
+                                </TextField>
                             </Box>
                         </Grid>
                     </Grid>

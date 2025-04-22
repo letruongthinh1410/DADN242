@@ -12,7 +12,7 @@ import { GetGroup, GetRule, DeleteGroup, DeleteFeed, DeleteRule, CreateRule, Cre
 import { useWebSocket } from "../../WebSocketProvider";
 import api from "../../../pages/api.jsx";
 
-const token = localStorage.getItem("accessToken"); // token của bạn
+ // token của bạn
 
 const PlantCard = ({ plant }) => {
 
@@ -28,51 +28,57 @@ const PlantCard = ({ plant }) => {
 
 
     const handleDeletePlant = async (e) => {
-        //gọi API xoá cây trồng
-        e.preventDefault()
+        e.preventDefault();
         try {
-            for (const feedName of [plant.temperature.key, plant.humidity.key, plant.light.key]) {
-                try {
-                    await DeleteRule({
-                        feedName: feedName,
-                        // token: token,
-                    })
-                    deleted.rules.push(feedName);
-                } catch (error) {
-                    console.warn(`Không xoá được rule của feed ${feedName}`, error)
+            // Xoá Rule (nếu tồn tại key)
+            for (const feed of [plant.temperature, plant.humidity, plant.light]) {
+                if (feed?.key) {
+                    try {
+                        await DeleteRule({
+                            feedName: feed.key,
+                            // token: token,
+                        });
+                        deleted.rules.push(feed.key);
+                    } catch (error) {
+                        console.warn(`Không xoá được rule của feed ${feed.key}`, error);
+                    }
                 }
             }
-
-            for (const feedName of [plant.fan.key, plant.temperature.key, plant.humidity.key, plant.light.key]) {
-                try {
-                    await DeleteFeed({
-                        groupName: plant.key,
-                        feedName: feedName,
-                        // token: token,
-                    })
-                    deleted.feeds.push(feedName);
-                } catch (error) {
-                    console.warn(`Không xoá được feed ${feedName}`, error)
+    
+            // Xoá Feed (nếu tồn tại key)
+            for (const feed of [plant.pump, plant.fan, plant.temperature, plant.humidity, plant.light]) {
+                if (feed?.key) {
+                    try {
+                        await DeleteFeed({
+                            groupName: plant.key,
+                            feedName: feed.key,
+                            // token: token,
+                        });
+                        deleted.feeds.push(feed.key);
+                    } catch (error) {
+                        console.warn(`Không xoá được feed ${feed.key}`, error);
+                    }
                 }
             }
-
+    
+            // Xoá Group (nếu có key)
             try {
                 await DeleteGroup({
                     groupName: plant.key,
                     // token: token,
-                })
+                });
                 deleted.group = true;
             } catch (error) {
-                console.warn(`Không xoá được group ${plant.name}`, error)
+                console.warn(`Không xoá được group ${plant.name}`, error);
             }
-
-            if(deleted.group) {
-                alert(`Xoá cây trồng ${plant.name} thành công!`)
-                window.location.reload()
+    
+            if (deleted.group) {
+                alert(`Xoá cây trồng ${plant.name} thành công!`);
+                window.location.reload();
             } else {
-                alert(`Xoá cây trồng ${plant.name} thất bại`)
+                alert(`Xoá cây trồng ${plant.name} thất bại`);
             }
-            
+    
         } catch (error) {
             if (error) {
                 const findFeedDataByFeedKey = (plant, feedKey) => {
@@ -85,9 +91,19 @@ const PlantCard = ({ plant }) => {
                             // token
                         };
                     }
-                
+    
+                    if (feedKey === plant.pump.key) {
+                        return {
+                            groupName: plant.key,
+                            feedName: plant.pump.key,
+                            feedFloor: 0,
+                            feedCeiling: 1,
+                            // token
+                        };
+                    }
+    
                     for (const type of ['temperature', 'humidity', 'light']) {
-                        if (plant[type].key === feedKey) {
+                        if (plant[type]?.key === feedKey) {
                             return {
                                 groupName: plant.key,
                                 feedName: feedKey,
@@ -98,10 +114,10 @@ const PlantCard = ({ plant }) => {
                         }
                     }
                 };
-
+    
                 const findRuleDataByRuleKey = (plant, ruleKey) => {
                     for (const type of ['temperature', 'humidity', 'light']) {
-                        if (plant[type].key === ruleKey) {
+                        if (plant[type]?.key === ruleKey) {
                             return {
                                 inputFeed: plant[type].key,
                                 ceiling: plant[type].ceiling,
@@ -115,66 +131,63 @@ const PlantCard = ({ plant }) => {
                         }
                     }
                 };
-
+    
                 for (const key of deleted.rules) {
-                    const ruleData = findRuleDataByRuleKey(originalPlant, key); 
+                    const ruleData = findRuleDataByRuleKey(originalPlant, key);
                     await CreateRule(ruleData);
                 }
-            
+    
                 for (const key of deleted.feeds) {
-                    const feedData = findFeedDataByFeedKey(originalPlant, key); 
+                    const feedData = findFeedDataByFeedKey(originalPlant, key);
                     await CreateFeeds(feedData);
                 }
-            
+    
                 if (deleted.groupDeleted) {
                     await CreateGroup({ groupName: originalPlant.key });
                 }
             }
-
-            console.log('Failed to delete a plant', error);
-            alert(`Xoá cây trồng ${plant.name} thất bại`)
-        } 
-        
-    }
+    
+            console.log("Failed to delete a plant", error);
+            alert(`Xoá cây trồng ${plant.name} thất bại`);
+        }
+    };
+    
 
     const deviceList = `${plant.fan ? `Quạt làm mát (${plant.fan.key}), ` : ""}
-    ${plant.temperature ? `Cảm biến nhiệt độ (${plant.temperature.key}), `: ""}
-    ${plant.humidity ? `Cảm biến độ ẩm đất (${plant.humidity.key}),` : ""}
-    ${plant.light ? `Cảm biến ánh sáng(${plant.light.key}))` : ""}`
+    ${plant.pump ? `Máy bơm (${plant.pump.key}), `: ""}`
 
     const tempValue = plant.temperature?.values[0];
     const humidityValue = plant.humidity?.values[0];
     const lightValue = plant.light?.values[0];
 
-    const notifyTemp = plant?.temperature?.status === false ? "Cảm biến nhiệt độ không hoạt động" : 
-        (tempValue != null && plant.temperature?.floor != null && plant.temperature?.ceiling != null 
+    const notifyTemp = tempValue != null && plant.temperature?.floor != null && plant.temperature?.ceiling != null 
             ? (tempValue < plant.temperature.floor
                 ? "Nhiệt độ thấp"
                 : tempValue > plant.temperature.ceiling
                 ? "Nhiệt độ cao"
                 : "Bình thường")
-            : "Không có dữ liệu");
+            : "Không có dữ liệu về nhiệt độ";
 
-    const notifyHumidity = plant?.humidity?.status === false ? "Cảm biến độ ẩm đất không hoạt động" :
-        humidityValue != null && plant.humidity?.floor != null && plant.humidity?.ceiling != null
+    const notifyHumidity = humidityValue != null && plant.humidity?.floor != null && plant.humidity?.ceiling != null
             ? (humidityValue < plant.humidity.floor
                 ? "Độ ẩm đất thấp"
                 : humidityValue > plant.humidity.ceiling
                 ? "Độ ẩm đất cao"
                 : "Bình thường")
-            : "Không có dữ liệu";
+            : "Không có dữ liệu về độ ẩm đất"
 
-    const notifyLight = plant?.light?.status === false ? "Cảm biến ánh sáng không hoạt động" :
-        lightValue != null && plant.light?.floor != null && plant.light?.ceiling != null
+    const notifyLight = lightValue != null && plant.light?.floor != null && plant.light?.ceiling != null
             ? (lightValue < plant.light.floor
                 ? "Ánh sáng thấp"
                 : lightValue > plant.light.ceiling
                 ? "Ánh sáng cao"
                 : "Bình thường")
-            : "Không có dữ liệu";
+            : "Không có dữ liệu về ánh sáng"
 
     
-    const notify = [notifyTemp, notifyHumidity, notifyLight].filter(n => n !== `Bình thường`).join(', ') || `Bình thường`;
+    const notify = [notifyTemp, notifyHumidity, notifyLight].every(n => n.includes("Không có dữ liệu"))
+        ? "Không có dữ liệu"
+        : [notifyTemp, notifyHumidity, notifyLight].filter(n => n !== "Bình thường").join(", ") || "Bình thường";
     return (
         <Card 
             sx={{ 
@@ -193,7 +206,7 @@ const PlantCard = ({ plant }) => {
                 <CardContent>
                 {/* Tên cây */}
                 <Typography variant="h6" fontWeight="bold" style={{fontSize: "1.2rem"}} className="d-flex align-items-center justify-content-center">
-                    <Dot size={28} color= {plant.sign ? "#D90808" : "#0CD908"}/> {plant.id}
+                    <Dot size={28} color= {notify !== "Bình thường" ? "#D90808" : "#0CD908"}/> {plant.id}
                 </Typography>
 
                 {/* Loại cây */}
@@ -208,15 +221,15 @@ const PlantCard = ({ plant }) => {
                     </Typography>
                     <Typography variant="body2" mt={1} style={{fontSize: "1.1rem"}}>
                         <Thermometer style = {{marginRight: "1rem", color: "#2C98A0"}}/> 
-                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#2C98A0"}}>Nhiệt độ:</span> {plant.temperature.floor}°C - {plant.temperature.ceiling}°C
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#2C98A0"}}>Nhiệt độ:</span> {plant?.temperature?.floor ? (`${plant?.temperature?.floor}°C - ${plant?.temperature?.ceiling}°C`) : ("Không có rule")}
                     </Typography>
                     <Typography variant="body2" mt={1} style={{fontSize: "1.1rem"}}>
                         <Droplets style = {{marginRight: "1rem", color: "#334EAC"}}/> 
-                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#334EAC"}}>Độ ẩm đất:</span> {plant.humidity.floor}% - {plant.humidity.ceiling}%
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#334EAC"}}>Độ ẩm đất:</span> {plant?.humidity?.floor ? (`${plant?.humidity?.floor}% - ${plant?.humidity?.ceiling}%`) : ("Không có rule")}
                     </Typography>
                     <Typography variant="body2" mt={1} style={{fontSize: "1.1rem"}}>
                         <Sun style = {{marginRight: "1rem", color: "#ECA611"}}/> 
-                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#ECA611"}}>Ánh sáng:</span> {plant.light.floor}% - {plant.light.ceiling}%
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#ECA611"}}>Ánh sáng:</span> {plant?.light?.floor ? (`${plant?.light?.floor}% - ${plant?.light?.ceiling}%`) : ("Không có rule")}
                     </Typography>
                 </NavLink>
                 
@@ -346,13 +359,14 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const token = localStorage.getItem("accessToken");
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
                 // lấy dữ liệu của plant (bật websocket và lấy deviceData)
                 
                 const plantData = filteredGroups.length > 0 ? 
                 await Promise.all( filteredGroups.map(async (group) => {
-                    if (group.length < 4) return null;
+                    if (group.length < 5) return null;
                     let plant = {
                         id: group.id,
                         name: group.name,
@@ -361,6 +375,7 @@ const Home = () => {
                         humidity: null,
                         light: null,
                         fan: null,
+                        pump: null,
                     };
                     
                     await Promise.all(
@@ -386,8 +401,19 @@ const Home = () => {
                                     status: resData != null && values[values.length - 1] > 0,
                                 };
                             } 
+                            else if (feed.name === "pump") {
+                                const values = Array.isArray(resData)
+                                ? resData.map(item => Number(item.value))
+                                : []; //fan chỉ chứa giá trị 0 và 1
+                                plant.pump = {
+                                    id: feed.id,
+                                    name: feed.name,
+                                    key: feed.key,
+                                    status: resData != null && values[values.length - 1] > 0,
+                                };
+                            } 
                             else {
-                                //temp, pump, light chứa 0, 1 và các giá trị khác
+                                //temp, humidity, light chứa 0, 1 và các giá trị khác
                                 const formatFeedData = (resData) => {
                                     if (!Array.isArray(resData) || resData.length === 0) return { values: [], times: [] };
                                   
@@ -409,7 +435,7 @@ const Home = () => {
                                   };
                                 
                                 const { values, times } = formatFeedData(resData)
-                                const valuesWith0and1 = Array.isArray(resData) ? resData.map(item => Number(item.value)) : [];
+
                                 try {
                                     const ruleRes = await GetRule({
                                         feedName: feed.key,
@@ -427,13 +453,12 @@ const Home = () => {
                                         outputFeedBelow: ruleData?.outputFeedBelow ?? null,
                                         aboveValue: ruleData?.aboveValue ?? null,
                                         belowValue: ruleData?.belowValue ?? null,
-                                        status: resData != null && valuesWith0and1[valuesWith0and1.length - 1] > 0,
                                         values: values,
                                         times: times,
                                     }
                                     if (feed.name === "temp") {
                                         plant.temperature = feedObject;
-                                    } else if (feed.name === "pump") {
+                                    } else if (feed.name === "humidity") {
                                         plant.humidity = feedObject;
                                     } else if (feed.name === "light") {
                                         plant.light = feedObject;
