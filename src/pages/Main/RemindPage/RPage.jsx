@@ -88,7 +88,7 @@ const EditReminderModal = ({ open, onClose, reminder, plants,onRefresh }) => {
             alert("Không thể kết nối đến server.");
         }
     };
-
+    
     const handlePlantChange = (e) => {
         const selectedId = e.target.value;
         setPlantId(selectedId);
@@ -115,11 +115,15 @@ const EditReminderModal = ({ open, onClose, reminder, plants,onRefresh }) => {
                         <FormControl fullWidth sx={{ mb: 2 }}>
                             <Typography fontWeight="bold">Chọn cây</Typography>
                             <Select value={plantId} onChange={handlePlantChange}>
-                                {plants.map((plant) => (
+                                {plants.length > 0 ? (plants.map((plant) => (  
                                     <MenuItem key={plant.Id} value={plant.Id}>
                                         {plant.Name} ({plant.Id})
                                     </MenuItem>
-                                ))}
+                                ))):
+                                <MenuItem disabled>
+                                    Không có cây  
+                                </MenuItem>
+                                }
                             </Select>
                         </FormControl>
 
@@ -127,7 +131,8 @@ const EditReminderModal = ({ open, onClose, reminder, plants,onRefresh }) => {
                             <FormControl fullWidth sx={{ mb: 2 }}>
                                 <Typography fontWeight="bold">Chọn feed</Typography>
                                 <Select value={feedKey} onChange={(e) => setFeedKey(e.target.value)}>
-                                    {feeds.map(feed => (
+                                    {feeds.filter((f)=>f.name.toLowerCase().include("pump")||f.name.toLowerCase().include("fan")||f.key.toLowerCase().include("pump")||f.key.toLowerCase().include("fan"))
+                                    .map(feed => (
                                         <MenuItem key={feed.key} value={feed.key}>
                                             {feed.name}
                                         </MenuItem>
@@ -524,9 +529,13 @@ const ReminderSchedule = () => {
             const groupMap = {};
             const feedMap = {};
 
-            const plantList = groupData.map(group => {
+            // console.log("groupdata",groupData)
+            const plantList = groupData.filter((group)=>!(group.key ==="default" && group.name === "Default")).map(group => {
                 groupMap[group.key] = group.name;
-                group.feeds.forEach(feed => {
+                const filteredFeeds = group.feeds.filter(feed => feed.name.toLowerCase().include("pump") || feed.name.toLowerCase().include("fan")
+                || feed.key.toLowerCase().include("fan") || feed.key.toLowerCase().include("pump"));
+
+                filteredFeeds.forEach(feed => {
                     feedMap[`${feed.key}`] = {
                         feedName: feed.name,
                         groupKey: group.key,
@@ -540,6 +549,7 @@ const ReminderSchedule = () => {
                     Feeds: group.feeds,
                 };
             });
+            console.log("plantList",plantList)
             // console.log("feedMap", feedMap);
             // console.log("groupData", groupData);
             // console.log("scheduleData", scheduleData);
@@ -608,7 +618,7 @@ const ReminderSchedule = () => {
         return matchPlant && matchFeed && matchFrequency;
     });
     // console.log("reminders", reminders);
-    console.log("Filtered reminders:", filteredReminders);
+    // console.log("Filtered reminders:", filteredReminders);
     // console.log("Selected frequency:", selectedFrequency);
     // console.log("Reminder types:", reminders.map(r => r.type));
     return (

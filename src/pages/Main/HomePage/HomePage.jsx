@@ -86,7 +86,7 @@ function TChu() {
 
       console.log("Access Token:", localStorage.getItem("accessToken"));
       console.log("Refresh Token:", localStorage.getItem("refreshToken"));
-      alert("Đăng nhập thành công!");
+      // alert("Đăng nhập thành công!");
       navigate("/plants");
     } catch (error) {
       alert(error.response?.data?.message ||"Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.");

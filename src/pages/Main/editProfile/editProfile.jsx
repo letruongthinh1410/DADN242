@@ -49,7 +49,7 @@ const EditProfile = () => {
   
     if (showChangePassword) {
       if (newPassword !== confirmNewPassword) {
-        alert("Mật khẩu mới không khớp.");
+        alert("Mật khẩu mới nhập lại không khớp.");
         return;
       }
     }

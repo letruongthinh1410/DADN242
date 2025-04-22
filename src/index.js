@@ -21,6 +21,7 @@ import UserProfile from './pages/Main/InfoUser/InfoUser.jsx'
 import EditProfile from './pages/Main/editProfile/editProfile.jsx' 
 import { Navigate } from "react-router-dom";
 import { WebSocketProvider } from './pages/WebSocketProvider.jsx';
+import PrivateRoute from './pages/PrivateRoute.jsx';
 
 const App = () => {
     const router = createBrowserRouter([
@@ -43,44 +44,49 @@ const App = () => {
                     element: <Base/>,
                     children: [
                         {
-                            path: 'plants',
-                            element: <Home />,
-                            handle: { title: "Danh sách cây trồng" },
-                        },
-                        {
-                            path: 'plants/add',
-                            element: <AddPlant />,
-                            handle: { title: "Thêm cây trồng" },
-                        },
-                        {
-                            path: 'plants/update',
-                            element: <UpdatePlant />,
-                            handle: { title: "Cập nhật cây trồng" },
-                        },
-                        {
-                            path: 'parameter',
-                            element: <Parameter />,
-                            handle: { title: "Thông số cây trồng" },
-                        },  
-                        {
-                            path: 'schedule',
-                            element: <ReminderSchedule />,
-                            handle: { title: "Lên lịch cây trồng" },
-                        },
-                        {  path: 'schedule/AddRm',
-                            element: <ReminderForm />,
-                            handle: { title: "Thêm lịch nhắc nhở" },
-                        },
-                        {
-                            path: 'infor-account',
-                            element: <UserProfile />,
-                            handle: { title: "Thông tin tài khoản" },
-                        },
-                        {
-                            path: 'infor-account/edit-profile',
-                            element: <EditProfile />,
-                            handle: { title: "Sửa thông tin tài khoản" },
-                        },
+                            element: <PrivateRoute/>,
+                            children: [
+                                {
+                                    path: 'plants',
+                                    element: <Home />,
+                                    handle: { title: "Danh sách cây trồng" },
+                                },
+                                {
+                                    path: 'plants/add',
+                                    element: <AddPlant />,
+                                    handle: { title: "Thêm cây trồng" },
+                                },
+                                {
+                                    path: 'plants/update',
+                                    element: <UpdatePlant />,
+                                    handle: { title: "Cập nhật cây trồng" },
+                                },
+                                {
+                                    path: 'parameter',
+                                    element: <Parameter />,
+                                    handle: { title: "Thông số cây trồng" },
+                                },  
+                                {
+                                    path: 'schedule',
+                                    element: <ReminderSchedule />,
+                                    handle: { title: "Lên lịch cây trồng" },
+                                },
+                                {  path: 'schedule/AddRm',
+                                    element: <ReminderForm />,
+                                    handle: { title: "Thêm lịch nhắc nhở" },
+                                },
+                                {
+                                    path: 'infor-account',
+                                    element: <UserProfile />,
+                                    handle: { title: "Thông tin tài khoản" },
+                                },
+                                {
+                                    path: 'infor-account/edit-profile',
+                                    element: <EditProfile />,
+                                    handle: { title: "Sửa thông tin tài khoản" },
+                                },
+                            ]
+                        }
                     ],
                 }
             ]

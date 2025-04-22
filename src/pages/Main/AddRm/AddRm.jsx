@@ -82,11 +82,17 @@ const ReminderForm = () => {
                         }}
                         fullWidth sx={{ m: 1 }}
                     >
-                        {plantGroups.map((group) => (
-                            <MenuItem key={group.key} value={group.key}>
-                                {group.name}
-                            </MenuItem>
-                        ))}
+                           {plantGroups.filter(group => group.key !== "default" || group.name !== "Default").length > 0 ? (
+                            plantGroups
+                            .filter(group => group.key !== "default" || group.name !== "Default")
+                            .map(group => (
+                                <MenuItem key={group.key} value={group.key}>
+                                {group.name} ({group.key})
+                                </MenuItem>
+                            ))
+                        ) : (
+                            <MenuItem disabled>Không có cây</MenuItem>
+                        )}    
                     </TextField>
 
                     {feeds.length > 0 && (
@@ -97,14 +103,14 @@ const ReminderForm = () => {
                             onChange={(e) => setFeed(e.target.value)}
                             fullWidth sx={{ m: 1 }}
                         >
-                            {feeds.map((f) => (
+                            {feeds.filter((f)=>f.name.toLowerCase().include("pump")||f.name.toLowerCase().include("fan")||f.key.toLowerCase().include("pump")||f.key.toLowerCase().include("fan"))
+                            .map((f) => (
                                 <MenuItem key={f.key} value={f.key}>
                                     {f.name}
                                 </MenuItem>
                             ))}
                         </TextField>
                     )}
-
                     {feed && (
                         <TextField
                             label="Giá trị"
