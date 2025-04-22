@@ -31,7 +31,7 @@ const refreshAccessToken = async () => {
   } catch (error) {
     console.error("Refresh token failed", error.response?.data || error.message);
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    //localStorage.removeItem("refreshToken");
     console.error("Token đã hết hạn, vui lòng đăng nhập lại!");
     window.location.href = "";
     throw error;
