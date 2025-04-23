@@ -320,7 +320,7 @@ const PlantList = ({ plants, loading}) => {
                  // Để danh sách mở rộng khi cần
                 style={{minHeight: "50vh"}}
                             >
-                                {loading ? (
+                                {loading < 1 ? (
                                     Array.from({ length: 2 }).map((_, index) => (
                                         <Grid item key={index}>
                                             <Card sx={{ width: 500, height: 380 }}>
@@ -382,10 +382,10 @@ const PlantList = ({ plants, loading}) => {
 const Home = () => {
     const { version, initWebSockets, checkConnect } = useWebSocket()
     const [plants, setPlants] = useState([])
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(0)
     useEffect(() => {
         const fetchData = async () => {
-            setLoading(true)
+            setLoading(loading)
             try {
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
@@ -505,7 +505,7 @@ const Home = () => {
             } catch (err) {
                 console.error("❌ Error fetching groups:", err);
             } finally {
-                setLoading(false)
+                setLoading(loading + 1)
             }
              };
             
