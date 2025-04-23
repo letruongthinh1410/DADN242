@@ -296,6 +296,11 @@ function TChu() {
                 placeholder="Nhập email" 
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleLogin();
+                  }
+                }}
                 />
               </div>
               <div className="mb-3">
@@ -307,6 +312,11 @@ function TChu() {
                     placeholder="Nhập mật khẩu"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleLogin();
+                      }
+                    }}
                   />
                   {password.length > 0 && ( // Chỉ hiển thị khi có ký tự
                     <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
@@ -363,15 +373,39 @@ function TChu() {
                 <h3>Đăng ký</h3>
                 <div className="mb-3">
                   <label>Email:</label>
-                  <input type="email" className="form-control" placeholder="Nhập email"  value={registerEmail}  onChange={(e) => setRegisterEmail(e.target.value)} />
+                  <input 
+                  type="email"
+                  className="form-control" 
+                  placeholder="Nhập email"  
+                  value={registerEmail}  
+                  onChange={(e) => setRegisterEmail(e.target.value)} 
+                  onKeyDown={(e) => {
+                   if (e.key === "Enter") {
+                     handleRegister();
+                   }
+                  }} />
                 </div>
                 <div className="mb-3">
                   <label>Adafruit username:</label>
-                  <input type="text" className="form-control" placeholder="Username" value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} />
+                  <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="Username" 
+                  value={registerUsername} 
+                  onChange={(e) => setRegisterUsername(e.target.value)} 
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleRegister();
+                    }
+                  }}/>
                 </div>
                 <div className="mb-3">
                   <label>Adafruit API key:</label>
-                  <input type="text" className="form-control" placeholder="Nhập API key" value={registerApiKey}  onChange={(e) => setRegisterApiKey(e.target.value)}/>
+                  <input type="text" className="form-control" placeholder="Nhập API key" value={registerApiKey}  onChange={(e) => setRegisterApiKey(e.target.value)} onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleRegister();
+                    }
+                  }}/>
                 </div>
                 <div className="mb-3">
                   <label>Mật khẩu:</label>
@@ -382,6 +416,11 @@ function TChu() {
                     placeholder="Nhập mật khẩu" 
                     value={PasswordRegister}
                     onChange={(e) => setPasswordRegister(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleRegister();
+                      }
+                    }}
                     />
                     { PasswordRegister.length > 0 &&
                       <span className="toggle-password-r1" onClick={() => setShowPasswordRegister(!showPasswordRegister)}>
@@ -400,6 +439,11 @@ function TChu() {
                     placeholder="Nhập lại mật khẩu" 
                     value={RPasswordRegister}
                     onChange={(e) => setRPasswordRegister(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleRegister();
+                      }
+                    }}
                      />
                     {  RPasswordRegister.length > 0 &&
                       <span className="toggle-password-r2" onClick={() => setRShowPasswordRegister(!showRPasswordRegister)}>
@@ -449,7 +493,17 @@ function TChu() {
               <h3>Đặt lại mật khẩu</h3>
               <div className="mb-3" >
                 <label>Email:</label>
-                <input type="email" className="form-control" placeholder="Nhập email" value={rsEmail} onChange={(e)=>setRsEmail(e.target.value)}/>
+                <input 
+                type="email" 
+                className="form-control" 
+                placeholder="Nhập email" 
+                value={rsEmail} 
+                onChange={(e)=>setRsEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleForgotPassword();
+                  }}}
+                />
               </div>
               <div className="button-group-forget"> 
                 <button className="button-33"  onClick={() => {handleForgotPassword();}} >Xác nhận</button>
@@ -490,7 +544,17 @@ function TChu() {
               <h3>Đặt lại mật khẩu</h3>
               <div className="mb-3">
                 <label>TOKEN:</label>
-                <input type="token" className="form-control" placeholder="Nhập token đã gửi vào email" value={rsToken} onChange={(e) => setRsToken(e.target.value)}/>
+                <input 
+                type="token" 
+                className="form-control" 
+                placeholder="Nhập token đã gửi vào email" 
+                value={rsToken} onChange={(e) => setRsToken(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleResetPassword();
+                  }
+                }}
+                />
               </div>
                 <div className="mb-3">
                   <label>Mật khẩu mới:</label>
@@ -501,6 +565,11 @@ function TChu() {
                     placeholder="Nhập mật khẩu" 
                     value={PasswordRs}
                     onChange={(e) => setPasswordRs(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleResetPassword();
+                      }
+                    }}
                     />
                     { PasswordRs.length > 0 &&
                       <span className="toggle-password-rs1" onClick={() => setShowPasswordRs(!showPasswordRs)}>
@@ -519,6 +588,11 @@ function TChu() {
                     placeholder="Nhập lại mật khẩu" 
                     value={RPasswordRs}
                     onChange={(e) => setRPasswordRs(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleResetPassword();
+                      }
+                    }}
                      />
                     {  RPasswordRs.length > 0 &&
                       <span className="toggle-password-rs2" onClick={() => setRShowPasswordRs(!showRPasswordRs)}>

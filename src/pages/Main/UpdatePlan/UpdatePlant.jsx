@@ -483,6 +483,7 @@ const UpdatePlant = () => {
                             </Box>
                         </Grid>
                     </Grid>
+
                     <Grid item size={{xs: 12, md: 4}} container spacing={2} sx={{ backgroundColor: "#FFFBD6", padding: "1rem", borderRadius: "8px"}}>
                         <Grid item xs={12}>
                             <Typography fontWeight="bold" fullWidth style={{ marginBottom: "1rem", textAlign: "center", color: "#ECA611" }}>
