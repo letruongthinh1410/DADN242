@@ -107,52 +107,6 @@ const AddPlant = () => {
                     token: token,
                 });
             }
-
-            const shouldCreateFeedAndRule = (data) => {
-                return data.floor || data.ceiling || data.outputFeedAbove || data.outputFeedBelow || data.aboveValue || data.belowValue;
-            };            
-
-            // Xử lý nhiệt độ
-            if (shouldCreateFeedAndRule(plantData.temperature)) {
-                await CreateRule({
-                    inputFeed: `${response.key}.temp`,
-                    ceiling: plantData.temperature.ceiling,
-                    floor: plantData.temperature.floor,
-                    outputFeedAbove: `${response.key}${plantData.temperature.outputFeedAbove}`,
-                    outputFeedBelow: `${response.key}${plantData.temperature.outputFeedBelow}`,
-                    aboveValue: plantData.temperature.aboveValue,
-                    belowValue: plantData.temperature.belowValue,
-                    token: token,
-                });
-            }
-
-            // Xử lý độ ẩm
-            if (shouldCreateFeedAndRule(plantData.humidity)) {
-                await CreateRule({
-                    inputFeed: `${response.key}.humidity`,
-                    ceiling: plantData.humidity.ceiling,
-                    floor: plantData.humidity.floor,
-                    outputFeedAbove: `${response.key}${plantData.humidity.outputFeedAbove}`,
-                    outputFeedBelow: `${response.key}${plantData.humidity.outputFeedBelow}`,
-                    aboveValue: plantData.humidity.aboveValue,
-                    belowValue: plantData.humidity.belowValue,
-                    token: token,
-                });
-            }
-
-            // Xử lý ánh sáng
-            if (shouldCreateFeedAndRule(plantData.light)) {
-                await CreateRule({
-                    inputFeed: `${response.key}.light`,
-                    ceiling: plantData.light.ceiling,
-                    floor: plantData.light.floor,
-                    outputFeedAbove: `${response.key}${plantData.light.outputFeedAbove}`,
-                    outputFeedBelow: `${response.key}${plantData.light.outputFeedBelow}`,
-                    aboveValue: plantData.light.aboveValue,
-                    belowValue: plantData.light.belowValue,
-                    token: token,
-                });
-            }
             await CreateFeeds({
                 groupName: response,
                 feedName: "temp",
@@ -193,6 +147,41 @@ const AddPlant = () => {
                 feedCeiling: 1.0,
                 token: token,
             })
+
+            await CreateRule({
+                inputFeed: `${response.key}.temp`,
+                ceiling: plantData.temperature.ceiling,
+                floor: plantData.temperature.floor,
+                outputFeedAbove: `${response.key}${plantData.temperature.outputFeedAbove}`,
+                outputFeedBelow: `${response.key}${plantData.temperature.outputFeedBelow}`,
+                aboveValue: plantData.temperature.aboveValue,
+                belowValue: plantData.temperature.belowValue,
+                token: token,
+            });            
+
+                await CreateRule({
+                    inputFeed: `${response.key}.humidity`,
+                    ceiling: plantData.humidity.ceiling,
+                    floor: plantData.humidity.floor,
+                    outputFeedAbove: `${response.key}${plantData.humidity.outputFeedAbove}`,
+                    outputFeedBelow: `${response.key}${plantData.humidity.outputFeedBelow}`,
+                    aboveValue: plantData.humidity.aboveValue,
+                    belowValue: plantData.humidity.belowValue,
+                    token: token,
+                });
+
+                await CreateRule({
+                    inputFeed: `${response.key}.light`,
+                    ceiling: plantData.light.ceiling,
+                    floor: plantData.light.floor,
+                    outputFeedAbove: `${response.key}${plantData.light.outputFeedAbove}`,
+                    outputFeedBelow: `${response.key}${plantData.light.outputFeedBelow}`,
+                    aboveValue: plantData.light.aboveValue,
+                    belowValue: plantData.light.belowValue,
+                    token: token,
+                });
+            
+            
 
             alert(`Thêm cây trồng ${plantData.name} thành công!`);
             navigate("/plants")
