@@ -107,55 +107,87 @@ const Parameter = () => {
     const [loading, setLoading] = useState(0)
     useEffect(() => {
         const fetchPlants = async () => {
+            setLoading(loading)
+            const response = await api.get("/user/info");
             try {
-                setLoading(loading);
-                const { data } = await api.get("/user/info");
-                const { username, apikey } = data.data;
                 const groupResponse = await GetGroup();
                 const filteredGroups = groupResponse.filter(group => group.key !== "default");
-    
-                const plantData = await Promise.all(
+                const plantData = filteredGroups.length > 0 ? await Promise.all(
                     filteredGroups.map(async (group) => {
-                        if (!group.feeds || group.feeds.length < 4) return null;
-    
-                        const plant = {
-                            id: group.id,
-                            name: group.name,
-                            key: group.key,
-                            temperature: null,
-                            humidity: null,
-                            light: null,
-                            fan: null,
-                            pump: null,
-                        };
-    
-                        await Promise.all(group.feeds.map(async (feed) => {
-                            if (!checkConnect(feed.key)) initWebSockets([feed.key]);
-    
-                            if (["temp", "humidity", "light"].includes(feed.name)) {
-                                try {
-                                    const ruleRes = await GetRule({ feedName: feed.key });
-                                    const ruleData = ruleRes.data[0];
-    
-                                    const feedData = await GetFeedData({
-                                        username,
-                                        feedKey: feed.key,
-                                        apiKey: apikey,
+                    if (!group.feeds || group.feeds.length < 4) return null;
+                    let plant = {
+                        id: group.id,
+                        name: group.name,
+                        key: group.key,
+                        temperature: null,
+                        humidity: null,
+                        light: null,
+                        fan: null,
+                        pump: null,
+                    };
+            
+                    await Promise.all(
+                        group.feeds.map(async (feed) => {
+                            if(!checkConnect(feed.key)) initWebSockets([feed.key]) //bật WebSocket lên cho feed này
+
+                            const resData = await GetFeedData({
+                                username: response.data.data.username, // username tạm
+                                feedKey: feed.key,
+                                apiKey: response.data.data.apikey,
+                            })
+
+                            if (feed.name === "fan") {
+                                const values = Array.isArray(resData)
+                                ? resData.map(item => Number(item.value))
+                                : []; //fan chỉ chứa giá trị 0 và 1
+                                plant.fan = {
+                                    id: feed.id,
+                                    name: feed.name,
+                                    key: feed.key,
+                                    status: resData != null && values[0] > 0,
+                                };
+                            } 
+                            else if (feed.name === "pump") {
+                                const values = Array.isArray(resData)
+                                ? resData.map(item => Number(item.value))
+                                : []; //fan chỉ chứa giá trị 0 và 1
+                                plant.pump = {
+                                    id: feed.id,
+                                    name: feed.name,
+                                    key: feed.key,
+                                    status: resData != null && values[0] > 0,
+                                };
+                            } 
+                            else {
+                                //temp, humidity, light chứa 0, 1 và các giá trị khác
+                                const formatFeedData = (resData) => {
+                                    if (!Array.isArray(resData) || resData.length === 0) return { values: [], times: [] };
+                                    
+                                    // Lọc những entry có value KHÁC 0 và 1
+                                    const filtered = resData.filter(item => {
+                                        const num = Number(item.value);
+                                        return num !== 0 && num !== 1 && !isNaN(num);
                                     });
-    
-                                    const filtered = Array.isArray(feedData)
-                                        ? feedData.filter(item => {
-                                            const num = Number(item.value);
-                                            return num !== 0 && num !== 1 && !isNaN(num);
-                                        }) : [];
-    
+                                    
+                                    if (filtered.length === 0) return { values: [], times: [] };
+                                    
                                     const values = filtered.map(item => Number(item.value));
                                     const times = filtered.map(item => {
                                         const date = new Date(item.created_at);
-                                        return date.toLocaleTimeString('vi-VN', { hour12: false });
+                                        return date.toLocaleTimeString('vi-VN', { hour12: false }); // "hh:mm:ss"
                                     });
-    
-                                    const feedObj = {
+                                    
+                                    return { values, times };
+                                    };
+                                
+                                const { values, times } = formatFeedData(resData)
+                                try {
+                                    const ruleRes = await GetRule({
+                                        feedName: feed.key,
+                                    });
+                                    const ruleData = ruleRes.data[0];
+                                        
+                                    const feedObject = {
                                         id: feed.id,
                                         name: feed.name,
                                         key: feed.key,
@@ -165,117 +197,44 @@ const Parameter = () => {
                                         outputFeedBelow: ruleData?.outputFeedBelow ?? null,
                                         aboveValue: ruleData?.aboveValue ?? null,
                                         belowValue: ruleData?.belowValue ?? null,
-                                        values,
-                                        times,
-                                    };
-    
-                                    if (feed.name === "temp") plant.temperature = feedObj;
-                                    if (feed.name === "humidity") plant.humidity = feedObj;
-                                    if (feed.name === "light") plant.light = feedObj;
-                                } catch (err) {
-                                    console.error("❌ GetRule or FeedData failed:", feed.key, err);
-                                }
-                            } else if (feed.name === "fan" || feed.name === "pump") {
-                                const feedData = await GetFeedData({
-                                    username,
-                                    feedKey: feed.key,
-                                    apiKey: apikey,
-                                });
-    
-                                const values = Array.isArray(feedData)
-                                    ? feedData.map(item => Number(item.value)) : [];
-                                const status = feedData != null && values[0] > 0;
-    
-                                plant[feed.name] = {
-                                    id: feed.id,
-                                    name: feed.name,
-                                    key: feed.key,
-                                    status,
-                                };
+                                        values: values,
+                                        times: times,
+                                    }
+                                    if (feed.name === "temp") {
+                                        plant.temperature = feedObject;
+                                    } else if (feed.name === "humidity") {
+                                        plant.humidity = feedObject;
+                                    } else if (feed.name === "light") {
+                                        plant.light = feedObject;
+                                    }
+                            } catch (err) {
+                                console.error("❌ Failed to fetch rule for", feed.key, err);
                             }
-                        }));
-    
-                        return plant;
-                    })
-                );
-    
-                const validPlants = plantData.filter(Boolean);
-                setPlants(validPlants);
-    
-                const selected = selectedPlant
-                    ? validPlants.find(p => p.id === selectedPlant.id)
-                    : validPlants[0];
-    
-                setSelectedPlant(selected || validPlants[0]);
-    
+                        }
+                        })
+                    );
+                
+                    return plant;
+                })
+            ) : []
+                setPlants(plantData);
+                if (plantData.length > 0) {
+                    if (selectedPlant) {
+                        const updatedSelected = plantData.find(plant => plant.id === selectedPlant.id);
+                        setSelectedPlant(updatedSelected || plantData[0]); // nếu không tìm thấy, dùng cây đầu tiên
+                    } else {
+                        setSelectedPlant(plantData[0]); // lần đầu chưa có selectedPlant
+                    }
+                }
+                
             } catch (err) {
-                console.error("❌ Error fetching plants:", err);
+            console.error("❌ Error fetching groups:", err);
             } finally {
-                setLoading(loading + 1);
+                setLoading(loading + 1)
             }
         };
-    
         fetchPlants();
-    }, [checkConnect, initWebSockets, loading, selectedPlant]);
-    
-
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            if (!plants || plants.length === 0) return;
-    
-            try {
-                const { data } = await api.get("/user/info");
-                const { username, apikey } = data.data;
-    
-                const updatedPlants = await Promise.all(plants.map(async (plant) => {
-                    const updateSensorFeed = async (feedObj) => {
-                        if (!feedObj) return feedObj;
-                        const resData = await GetFeedData({ username, feedKey: feedObj.key, apiKey: apikey });
-    
-                        const filtered = Array.isArray(resData)
-                            ? resData.filter(item => {
-                                const num = Number(item.value);
-                                return num !== 0 && num !== 1 && !isNaN(num);
-                            }) : [];
-    
-                        const values = filtered.map(item => Number(item.value));
-                        const times = filtered.map(item => {
-                            const date = new Date(item.created_at);
-                            return date.toLocaleTimeString('vi-VN', { hour12: false });
-                        });
-    
-                        return { ...feedObj, values, times };
-                    };
-    
-                    const updateStatusFeed = async (feedObj) => {
-                        if (!feedObj) return feedObj;
-                        const resData = await GetFeedData({ username, feedKey: feedObj.key, apiKey: apikey });
-                        const values = Array.isArray(resData) ? resData.map(item => Number(item.value)) : [];
-                        const status = resData != null && values[0] > 0;
-                        return { ...feedObj, status };
-                    };
-    
-                    return {
-                        ...plant,
-                        temperature: await updateSensorFeed(plant.temperature),
-                        humidity: await updateSensorFeed(plant.humidity),
-                        light: await updateSensorFeed(plant.light),
-                        fan: await updateStatusFeed(plant.fan),
-                        pump: await updateStatusFeed(plant.pump),
-                    };
-                }));
-    
-                setPlants(updatedPlants);
-            } catch (err) {
-                console.error("❌ Error updating plants realtime:", err);
-            }
-        }, 5000);
-    
-        return () => clearInterval(interval);
-    }, [plants, version]);
-    
-    
-    
+    }, [version])
     
     const tempValue = selectedPlant?.temperature?.values[0] ?? -1;
     const humidityValue = selectedPlant?.humidity?.values[0] ?? -1;
