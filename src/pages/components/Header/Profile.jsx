@@ -47,6 +47,7 @@ const Profile = () => {
           try {
             const response = await api.get("/user/info");
             setUsername(response.data.data.username);
+            console.log("Nhận username thành công")
           } catch (error) {
             console.error("Lỗi khi lấy thông tin người dùng:", error);
           }

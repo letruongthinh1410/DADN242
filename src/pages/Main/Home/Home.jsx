@@ -228,15 +228,15 @@ const PlantCard = ({ plant, loading }) => {
                     </Typography>
                     <Typography variant="body2" mt={1} style={{fontSize: "1.1rem"}}>
                         <Thermometer style = {{marginRight: "1rem", color: "#2C98A0"}}/> 
-                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#2C98A0"}}>Nhiệt độ:</span> {plant?.temperature?.floor ? (`${plant?.temperature?.floor}°C - ${plant?.temperature?.ceiling}°C`) : ("Không có rule")}
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#2C98A0"}}>Nhiệt độ:</span> {plant?.temperature?.floor || plant?.temperature?.ceiling  ? (`${plant?.temperature?.floor}°C - ${plant?.temperature?.ceiling}°C`) : ("Không có rule")}
                     </Typography>
                     <Typography variant="body2" mt={1} style={{fontSize: "1.1rem"}}>
                         <Droplets style = {{marginRight: "1rem", color: "#334EAC"}}/> 
-                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#334EAC"}}>Độ ẩm đất:</span> {plant?.humidity?.floor ? (`${plant?.humidity?.floor}% - ${plant?.humidity?.ceiling}%`) : ("Không có rule")}
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#334EAC"}}>Độ ẩm đất:</span> {plant?.humidity?.floor || plant?.humidity?.ceiling? (`${plant?.humidity?.floor}% - ${plant?.humidity?.ceiling}%`) : ("Không có rule")}
                     </Typography>
                     <Typography variant="body2" mt={1} style={{fontSize: "1.1rem"}}>
                         <Sun style = {{marginRight: "1rem", color: "#ECA611"}}/> 
-                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#ECA611"}}>Ánh sáng:</span> {plant?.light?.floor ? (`${plant?.light?.floor}% - ${plant?.light?.ceiling}%`) : ("Không có rule")}
+                        <span style={{fontWeight: "bold", marginRight: "0.3rem", color: "#ECA611"}}>Ánh sáng:</span> {plant?.light?.floor || plant?.light?.ceiling ? (`${plant?.light?.floor}% - ${plant?.light?.ceiling}%`) : ("Không có rule")}
                     </Typography>
                 </NavLink>
                 
