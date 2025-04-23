@@ -9,7 +9,6 @@ import api from "../../../pages/api.jsx";
 const EditProfile = () => {
   const location = useLocation();
   const userInfo = location.state?.userInfo;
-  const [name, setName] = useState("Trịnh Trần Phương Tuấn");
   const [image, setImage] = useState(avatar);
   const [Username, setUserName] = useState(userInfo?.username || "");
   const [email, setEmail] = useState(userInfo?.email || "");
@@ -86,9 +85,10 @@ const EditProfile = () => {
   // Calculate total devices and groups
   useEffect(() => {
     if (userInfo?.groups) {
-      const deviceCount = userInfo.groups.reduce((acc, group) => acc + group.feeds.length, 0);
+      const filteredGroups = userInfo.groups.filter(group => group.key !== "default");
+      const deviceCount = filteredGroups.reduce((acc, group) => acc + group.feeds.length, 0);
       setTotalDevices(deviceCount);
-      setTotalGroups(userInfo.groups.length);
+      setTotalGroups(filteredGroups.length);
     }
   }, [userInfo]);
 
@@ -105,9 +105,9 @@ const EditProfile = () => {
                   className="img-fluid"
                   style={{ borderRadius: "8px", width: "100%", height: "100%", objectFit: "cover" }}
                 />
-                <Form.Group className="mt-2">
+                {/* <Form.Group className="mt-2">
                   <Form.Control type="file" accept="image/*" onChange={handleImageChange} />
-                </Form.Group>
+                </Form.Group> */}
               </Col>
               <Col md={6}>
                 <Form>
