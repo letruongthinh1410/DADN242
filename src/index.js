@@ -1,17 +1,104 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import ReactDOM from 'react-dom';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async'
+import Blank from './pages/Blank.jsx'
+import Error from './pages/Error.jsx'
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+import Base from './pages/Base.jsx';
+import Home from './pages/Main/Home/Home.jsx';
+
+import AddPlant from './pages/Main/AddPlant/AddPlant.jsx';
+import UpdatePlant from './pages/Main/UpdatePlan/UpdatePlant.jsx';
+import Parameter from './pages/Main/Parameter/Parameter.jsx';
+import TChu from './pages/Main/HomePage/HomePage.jsx'
+import ReminderSchedule from './pages/Main/RemindPage/RPage.jsx'
+import ReminderForm from './pages/Main/AddRm/AddRm.jsx'
+import UserProfile from './pages/Main/InfoUser/InfoUser.jsx' 
+import EditProfile from './pages/Main/editProfile/editProfile.jsx' 
+import { Navigate } from "react-router-dom";
+import { WebSocketProvider } from './pages/WebSocketProvider.jsx';
+import PrivateRoute from './pages/PrivateRoute.jsx';
+
+const App = () => {
+    const router = createBrowserRouter([
+        {
+            path: '/',
+            element: <Navigate to="/home" replace />  
+        },
+        {
+            path: '/home',
+            element: <TChu/>,
+            errorElement: <Error />,
+        },
+        {
+            path: '',
+            element: <Blank/>,
+            errorElement: <Error />,
+            children: [
+                {
+                    path: '',
+                    element: <Base/>,
+                    children: [
+                        {
+                            element: <PrivateRoute/>,
+                            children: [
+                                {
+                                    path: 'plants',
+                                    element: <Home />,
+                                    handle: { title: "Danh sách cây trồng" },
+                                },
+                                {
+                                    path: 'plants/add',
+                                    element: <AddPlant />,
+                                    handle: { title: "Thêm cây trồng" },
+                                },
+                                {
+                                    path: 'plants/update',
+                                    element: <UpdatePlant />,
+                                    handle: { title: "Cập nhật cây trồng" },
+                                },
+                                {
+                                    path: 'parameter',
+                                    element: <Parameter />,
+                                    handle: { title: "Thông số cây trồng" },
+                                },  
+                                {
+                                    path: 'schedule',
+                                    element: <ReminderSchedule />,
+                                    handle: { title: "Lên lịch cây trồng" },
+                                },
+                                {  path: 'schedule/AddRm',
+                                    element: <ReminderForm />,
+                                    handle: { title: "Thêm lịch nhắc nhở" },
+                                },
+                                {
+                                    path: 'infor-account',
+                                    element: <UserProfile />,
+                                    handle: { title: "Thông tin tài khoản" },
+                                },
+                                {
+                                    path: 'infor-account/edit-profile',
+                                    element: <EditProfile />,
+                                    handle: { title: "Sửa thông tin tài khoản" },
+                                },
+                            ]
+                        }
+                    ],
+                }
+            ]
+        }
+    ])
+    
+    return (
+        <HelmetProvider>
+            <WebSocketProvider>
+                <RouterProvider router={router} />
+            </WebSocketProvider>
+        </HelmetProvider>
+    )
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
